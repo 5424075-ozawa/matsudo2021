@@ -79,6 +79,7 @@ body,
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 20px;
+  align-items: start;
 }
 
 .mapArea {
