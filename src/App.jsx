@@ -19,7 +19,7 @@ function App() {
   const [showMesh, setShowMesh] = useState(true);
   const [showStations, setShowStations] = useState(true);
 
-  const [selectedMeshId, setSelectedMeshId] = useState(null);
+  const [selectedMeshIds, setSelectedMeshIds] = useState([]);
 
   const {
     data: allData,
@@ -66,6 +66,24 @@ function App() {
       .slice(0, 5);
   }, [filteredData]);
 
+  function handleMeshSelect(meshId) {
+    setSelectedMeshIds((currentIds) => {
+      if (currentIds.includes(meshId)) {
+        return currentIds.filter((id) => id !== meshId);
+      }
+
+      if (currentIds.length >= 2) {
+        return [currentIds[1], meshId];
+      }
+
+      return [...currentIds, meshId];
+    });
+  }
+
+  function clearSelectedMeshes() {
+    setSelectedMeshIds([]);
+  }
+
   return (
     <div className="page">
       <Header />
@@ -82,10 +100,12 @@ function App() {
         onTimezoneChange={(event) => setTimezone(event.target.value)}
         onAreaChange={(event) => {
           setSelectedArea(event.target.value);
-          setSelectedMeshId(null);
+          setSelectedMeshIds([]);
         }}
         onShowMeshChange={(event) => setShowMesh(event.target.checked)}
-        onShowStationsChange={(event) => setShowStations(event.target.checked)}
+        onShowStationsChange={(event) =>
+          setShowStations(event.target.checked)
+        }
       />
 
       <SummaryCards
@@ -103,24 +123,27 @@ function App() {
       {error && <p className="error">{error}</p>}
 
       <main className="main">
-        <FlowMap
-          data={filteredData}
-          maxPopulation={statistics.maxPopulation}
-          getPlaceName={getPlaceName}
-          showMesh={showMesh}
-          showStations={showStations}
-          selectedMeshId={selectedMeshId}
-          onMeshSelect={setSelectedMeshId}
-        />
+        <div className="mapColumn">
+          <FlowMap
+            data={filteredData}
+            maxPopulation={statistics.maxPopulation}
+            getPlaceName={getPlaceName}
+            showMesh={showMesh}
+            showStations={showStations}
+            selectedMeshIds={selectedMeshIds}
+            onMeshSelect={handleMeshSelect}
+          />
 
-        <div className="sidePanel">
           <MeshComparisonPanel
-            selectedMeshId={selectedMeshId}
+            selectedMeshIds={selectedMeshIds}
             dayflag={dayflag}
             timezone={timezone}
             getPlaceName={getPlaceName}
+            onClear={clearSelectedMeshes}
           />
+        </div>
 
+        <div className="sidePanel">
           <RankingPanel
             ranking={ranking}
             getPlaceName={getPlaceName}

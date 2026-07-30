@@ -7,6 +7,7 @@ import {
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 import {
@@ -69,18 +70,256 @@ function formatDiff(value) {
   return `${value.toLocaleString()}人`;
 }
 
+function createMeshStats(monthlyData, key) {
+  const values = monthlyData.map((item) => item[key] ?? 0);
+
+  if (values.length === 0) {
+    return null;
+  }
+
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const maxValue = Math.max(...values);
+  const minValue = Math.min(...values);
+
+  const maxMonth = monthlyData.find((item) => item[key] === maxValue);
+  const minMonth = monthlyData.find((item) => item[key] === minValue);
+
+  const january = monthlyData.find((item) => item.monthValue === "01");
+  const december = monthlyData.find((item) => item.monthValue === "12");
+
+  let largestIncrease = null;
+
+  for (let i = 1; i < monthlyData.length; i++) {
+    const previous = monthlyData[i - 1];
+    const current = monthlyData[i];
+    const diff = (current[key] ?? 0) - (previous[key] ?? 0);
+
+    if (
+      largestIncrease === null ||
+      diff > largestIncrease.diff
+    ) {
+      largestIncrease = {
+        from: previous.month,
+        to: current.month,
+        diff,
+      };
+    }
+  }
+
+  return {
+    average: Math.round(total / values.length),
+    maxValue,
+    minValue,
+    maxMonth: maxMonth?.month,
+    minMonth: minMonth?.month,
+    diffMaxMin: maxValue - minValue,
+    diffDecJan:
+      december && january
+        ? (december[key] ?? 0) - (january[key] ?? 0)
+        : null,
+    largestIncrease,
+  };
+}
+
+function createPairDiffStats(monthlyData, firstKey, secondKey) {
+  if (monthlyData.length === 0) {
+    return null;
+  }
+
+  const differences = monthlyData.map((item) => ({
+    month: item.month,
+    diff: (item[firstKey] ?? 0) - (item[secondKey] ?? 0),
+  }));
+
+  const largestDifference = differences.reduce((maxItem, item) => {
+    if (!maxItem) return item;
+
+    return Math.abs(item.diff) > Math.abs(maxItem.diff)
+      ? item
+      : maxItem;
+  }, null);
+
+  return {
+    largestDifference,
+  };
+}
+
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload || payload.length === 0) {
+    return null;
+  }
+
+  const first = payload[0];
+  const second = payload[1];
+
+  const firstValue = first?.value ?? 0;
+  const secondValue = second?.value ?? 0;
+
+  return (
+    <div className="chartTooltip">
+      <strong>{label}</strong>
+
+      {payload.map((item) => (
+        <p key={item.dataKey}>
+          {item.name}：{formatNumber(item.value)}人
+        </p>
+      ))}
+
+      {payload.length >= 2 && (
+        <p>
+          差分：{formatDiff(firstValue - secondValue)}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ComparisonTable({
+  title,
+  firstName,
+  secondName,
+  firstStats,
+  secondStats,
+  pairStats,
+}) {
+  if (!firstStats || !secondStats) {
+    return null;
+  }
+
+  return (
+    <div className="comparisonTableBox">
+      <h3 className="comparisonSubTitle">{title}</h3>
+
+      <table className="comparisonTable">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>{firstName}</th>
+            <th>{secondName}</th>
+            <th>差分</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>最大</td>
+            <td>
+              {firstStats.maxMonth}：
+              {formatNumber(firstStats.maxValue)}人
+            </td>
+            <td>
+              {secondStats.maxMonth}：
+              {formatNumber(secondStats.maxValue)}人
+            </td>
+            <td>
+              {formatDiff(firstStats.maxValue - secondStats.maxValue)}
+            </td>
+          </tr>
+
+          <tr>
+            <td>最小</td>
+            <td>
+              {firstStats.minMonth}：
+              {formatNumber(firstStats.minValue)}人
+            </td>
+            <td>
+              {secondStats.minMonth}：
+              {formatNumber(secondStats.minValue)}人
+            </td>
+            <td>
+              {formatDiff(firstStats.minValue - secondStats.minValue)}
+            </td>
+          </tr>
+
+          <tr>
+            <td>平均</td>
+            <td>{formatNumber(firstStats.average)}人</td>
+            <td>{formatNumber(secondStats.average)}人</td>
+            <td>
+              {formatDiff(firstStats.average - secondStats.average)}
+            </td>
+          </tr>
+
+          <tr>
+            <td>最大月 - 最小月</td>
+            <td>{formatDiff(firstStats.diffMaxMin)}</td>
+            <td>{formatDiff(secondStats.diffMaxMin)}</td>
+            <td>
+              {formatDiff(firstStats.diffMaxMin - secondStats.diffMaxMin)}
+            </td>
+          </tr>
+
+          <tr>
+            <td>12月 - 1月</td>
+            <td>{formatDiff(firstStats.diffDecJan)}</td>
+            <td>{formatDiff(secondStats.diffDecJan)}</td>
+            <td>
+              {formatDiff(firstStats.diffDecJan - secondStats.diffDecJan)}
+            </td>
+          </tr>
+
+          <tr>
+            <td>前月比で一番増えた月</td>
+            <td>
+              {firstStats.largestIncrease?.from}
+              から
+              {firstStats.largestIncrease?.to}
+              ：
+              {formatDiff(firstStats.largestIncrease?.diff)}
+            </td>
+            <td>
+              {secondStats.largestIncrease?.from}
+              から
+              {secondStats.largestIncrease?.to}
+              ：
+              {formatDiff(secondStats.largestIncrease?.diff)}
+            </td>
+            <td>
+              {formatDiff(
+                firstStats.largestIncrease?.diff -
+                  secondStats.largestIncrease?.diff
+              )}
+            </td>
+          </tr>
+
+          {pairStats?.largestDifference && (
+            <tr>
+              <td>差が一番大きい月</td>
+              <td colSpan="3">
+                {pairStats.largestDifference.month}：
+                {firstName} - {secondName}
+                ＝{formatDiff(pairStats.largestDifference.diff)}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function MeshComparisonPanel({
-  selectedMeshId,
+  selectedMeshIds,
   dayflag,
   timezone,
   getPlaceName,
+  onClear,
 }) {
   const [monthlyData, setMonthlyData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const firstMeshId = selectedMeshIds[0];
+  const secondMeshId = selectedMeshIds[1];
+
+  const firstMeshName = firstMeshId ? getPlaceName(firstMeshId) : "";
+  const secondMeshName = secondMeshId ? getPlaceName(secondMeshId) : "";
+
+  const isSingleMode = selectedMeshIds.length === 1;
+  const isTwoMeshMode = selectedMeshIds.length === 2;
+
   useEffect(() => {
-    if (!selectedMeshId) {
+    if (selectedMeshIds.length === 0) {
       setMonthlyData([]);
       return;
     }
@@ -108,17 +347,69 @@ function MeshComparisonPanel({
             const text = await response.text();
             const rows = parseCsv(text);
 
-            const target = rows.find(
+            if (isSingleMode) {
+              const daytimeTarget = rows.find(
+                (row) =>
+                  row.mesh1kmid === firstMeshId &&
+                  row.dayflag === "0" &&
+                  row.timezone === "1"
+              );
+
+              const nighttimeTarget = rows.find(
+                (row) =>
+                  row.mesh1kmid === firstMeshId &&
+                  row.dayflag === "0" &&
+                  row.timezone === "2"
+              );
+
+              const weekdayTarget = rows.find(
+                (row) =>
+                  row.mesh1kmid === firstMeshId &&
+                  row.dayflag === "1" &&
+                  row.timezone === "0"
+              );
+
+              const holidayTarget = rows.find(
+                (row) =>
+                  row.mesh1kmid === firstMeshId &&
+                  row.dayflag === "2" &&
+                  row.timezone === "0"
+              );
+
+              return {
+                month: month.label,
+                monthValue: month.value,
+                daytime: daytimeTarget ? daytimeTarget.population : 0,
+                nighttime: nighttimeTarget
+                  ? nighttimeTarget.population
+                  : 0,
+                weekday: weekdayTarget ? weekdayTarget.population : 0,
+                holiday: holidayTarget ? holidayTarget.population : 0,
+              };
+            }
+
+            const firstTarget = rows.find(
               (row) =>
-                row.mesh1kmid === selectedMeshId &&
+                row.mesh1kmid === firstMeshId &&
                 row.dayflag === dayflag &&
                 row.timezone === timezone
             );
 
+            const secondTarget = rows.find(
+              (row) =>
+                row.mesh1kmid === secondMeshId &&
+                row.dayflag === dayflag &&
+                row.timezone === timezone
+            );
+
+            const meshA = firstTarget ? firstTarget.population : 0;
+            const meshB = secondTarget ? secondTarget.population : 0;
+
             return {
               month: month.label,
               monthValue: month.value,
-              population: target ? target.population : 0,
+              meshA,
+              meshB,
             };
           })
         );
@@ -140,81 +431,66 @@ function MeshComparisonPanel({
     return () => {
       controller.abort();
     };
-  }, [selectedMeshId, dayflag, timezone]);
+  }, [
+    selectedMeshIds,
+    firstMeshId,
+    secondMeshId,
+    dayflag,
+    timezone,
+    isSingleMode,
+  ]);
 
-  const statistics = useMemo(() => {
+  const stats = useMemo(() => {
     if (monthlyData.length === 0) {
       return null;
     }
 
-    const values = monthlyData.map((item) => item.population);
-    const total = values.reduce((sum, value) => sum + value, 0);
+    if (isSingleMode) {
+      const daytimeStats = createMeshStats(monthlyData, "daytime");
+      const nighttimeStats = createMeshStats(monthlyData, "nighttime");
+      const weekdayStats = createMeshStats(monthlyData, "weekday");
+      const holidayStats = createMeshStats(monthlyData, "holiday");
 
-    const maxValue = Math.max(...values);
-    const minValue = Math.min(...values);
-
-    const maxMonth = monthlyData.find(
-      (item) => item.population === maxValue
-    );
-
-    const minMonth = monthlyData.find(
-      (item) => item.population === minValue
-    );
-
-    const january = monthlyData.find(
-      (item) => item.monthValue === "01"
-    );
-
-    const december = monthlyData.find(
-      (item) => item.monthValue === "12"
-    );
-
-    const diffMaxMin = maxValue - minValue;
-    const diffDecJan =
-      december && january
-        ? december.population - january.population
-        : null;
-
-    const average = Math.round(total / monthlyData.length);
-
-    let largestIncrease = null;
-
-    for (let i = 1; i < monthlyData.length; i++) {
-      const previous = monthlyData[i - 1];
-      const current = monthlyData[i];
-      const diff = current.population - previous.population;
-
-      if (
-        largestIncrease === null ||
-        diff > largestIncrease.diff
-      ) {
-        largestIncrease = {
-          from: previous.month,
-          to: current.month,
-          diff,
-        };
-      }
+      return {
+        daytimeStats,
+        nighttimeStats,
+        weekdayStats,
+        holidayStats,
+        daytimeNighttimePairStats: createPairDiffStats(
+          monthlyData,
+          "daytime",
+          "nighttime"
+        ),
+        weekdayHolidayPairStats: createPairDiffStats(
+          monthlyData,
+          "weekday",
+          "holiday"
+        ),
+      };
     }
 
-    return {
-      maxValue,
-      minValue,
-      maxMonth,
-      minMonth,
-      diffMaxMin,
-      diffDecJan,
-      average,
-      largestIncrease,
-    };
-  }, [monthlyData]);
+    const firstStats = createMeshStats(monthlyData, "meshA");
+    const secondStats = createMeshStats(monthlyData, "meshB");
 
-  if (!selectedMeshId) {
+    return {
+      firstStats,
+      secondStats,
+      twoMeshPairStats: createPairDiffStats(
+        monthlyData,
+        "meshA",
+        "meshB"
+      ),
+    };
+  }, [monthlyData, isSingleMode]);
+
+  if (selectedMeshIds.length === 0) {
     return (
       <section className="comparisonPanel">
-        <h2>メッシュ月別比較</h2>
+        <h2>メッシュ比較</h2>
         <p>
           地図上のメッシュをクリックすると、
-          1月〜12月の推移を表示します。
+          1地点の昼夜・平日休日比較ができます。
+          2つ選択すると、2地点の月別推移を比較できます。
         </p>
       </section>
     );
@@ -222,42 +498,81 @@ function MeshComparisonPanel({
 
   return (
     <section className="comparisonPanel">
-      <h2>メッシュ月別比較</h2>
+      <div className="comparisonHeader">
+        <h2>メッシュ比較</h2>
 
-      <p className="meshName">
-        {getPlaceName(selectedMeshId)}
-      </p>
+        <button type="button" onClick={onClear}>
+          選択解除
+        </button>
+      </div>
 
-      <p className="meshId">
-        メッシュID：{selectedMeshId}
-      </p>
+      <div className="selectedMeshList">
+        {firstMeshId && (
+          <div>
+            <span>{firstMeshName}</span>
+            <small>メッシュID：{firstMeshId}</small>
+          </div>
+        )}
 
-      <p className="comparisonCondition">
-        条件：{dayflagLabels[dayflag]} / {timezoneLabels[timezone]}
-      </p>
+        {secondMeshId && (
+          <div>
+            <span>{secondMeshName}</span>
+            <small>メッシュID：{secondMeshId}</small>
+          </div>
+        )}
+      </div>
+
+      {isSingleMode && (
+        <p className="comparisonCondition">
+          1地点比較：昼間・夜間 / 平日・休日
+        </p>
+      )}
+
+      {isTwoMeshMode && (
+        <p className="comparisonCondition">
+          2地点比較条件：
+          {dayflagLabels[dayflag]} / {timezoneLabels[timezone]}
+        </p>
+      )}
+
+      {isSingleMode && (
+        <p className="comparisonNote">
+          もう1つメッシュをクリックすると、2地点比較に切り替わります。
+        </p>
+      )}
 
       {loading && <p>月別データを読み込み中...</p>}
 
       {error && <p className="error">{error}</p>}
 
-      {!loading && monthlyData.length > 0 && (
+      {!loading && monthlyData.length > 0 && isSingleMode && stats && (
         <>
+          <h3 className="comparisonSubTitle">昼間・夜間比較</h3>
+
           <div className="lineChartBox">
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={260}>
               <LineChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value) => value.toLocaleString()} />
-                <Tooltip
-                  formatter={(value) => [
-                    `${value.toLocaleString()}人`,
-                    "滞在人口",
-                  ]}
-                />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend />
+
                 <Line
                   type="monotone"
-                  dataKey="population"
+                  dataKey="daytime"
+                  name="昼間"
                   stroke="#2563eb"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 7 }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="nighttime"
+                  name="夜間"
+                  stroke="#dc2626"
                   strokeWidth={3}
                   dot={{ r: 4 }}
                   activeDot={{ r: 7 }}
@@ -266,57 +581,102 @@ function MeshComparisonPanel({
             </ResponsiveContainer>
           </div>
 
-          {statistics && (
-            <div className="comparisonStats">
-              <div>
-                <span>最大</span>
-                <strong>
-                  {statistics.maxMonth?.month}：
-                  {formatNumber(statistics.maxValue)}人
-                </strong>
-              </div>
+          <ComparisonTable
+            title="昼間・夜間比較表"
+            firstName="昼間"
+            secondName="夜間"
+            firstStats={stats.daytimeStats}
+            secondStats={stats.nighttimeStats}
+            pairStats={stats.daytimeNighttimePairStats}
+          />
 
-              <div>
-                <span>最小</span>
-                <strong>
-                  {statistics.minMonth?.month}：
-                  {formatNumber(statistics.minValue)}人
-                </strong>
-              </div>
+          <h3 className="comparisonSubTitle">平日・休日比較</h3>
 
-              <div>
-                <span>最大月 - 最小月</span>
-                <strong>
-                  {formatDiff(statistics.diffMaxMin)}
-                </strong>
-              </div>
+          <div className="lineChartBox">
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis tickFormatter={(value) => value.toLocaleString()} />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend />
 
-              <div>
-                <span>12月 - 1月</span>
-                <strong>
-                  {formatDiff(statistics.diffDecJan)}
-                </strong>
-              </div>
+                <Line
+                  type="monotone"
+                  dataKey="weekday"
+                  name="平日"
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 7 }}
+                />
 
-              <div>
-                <span>平均</span>
-                <strong>
-                  {formatNumber(statistics.average)}人
-                </strong>
-              </div>
+                <Line
+                  type="monotone"
+                  dataKey="holiday"
+                  name="休日"
+                  stroke="#dc2626"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-              <div>
-                <span>前月比で一番増えた月</span>
-                <strong>
-                  {statistics.largestIncrease?.from}
-                  から
-                  {statistics.largestIncrease?.to}
-                  ：
-                  {formatDiff(statistics.largestIncrease?.diff)}
-                </strong>
-              </div>
-            </div>
-          )}
+          <ComparisonTable
+            title="平日・休日比較表"
+            firstName="平日"
+            secondName="休日"
+            firstStats={stats.weekdayStats}
+            secondStats={stats.holidayStats}
+            pairStats={stats.weekdayHolidayPairStats}
+          />
+        </>
+      )}
+
+      {!loading && monthlyData.length > 0 && isTwoMeshMode && stats && (
+        <>
+          <div className="lineChartBox">
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis tickFormatter={(value) => value.toLocaleString()} />
+                <Tooltip content={<ChartTooltip />} />
+                <Legend />
+
+                <Line
+                  type="monotone"
+                  dataKey="meshA"
+                  name={firstMeshName}
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 7 }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="meshB"
+                  name={secondMeshName}
+                  stroke="#dc2626"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <ComparisonTable
+            title="2地点比較表"
+            firstName={firstMeshName}
+            secondName={secondMeshName}
+            firstStats={stats.firstStats}
+            secondStats={stats.secondStats}
+            pairStats={stats.twoMeshPairStats}
+          />
         </>
       )}
     </section>

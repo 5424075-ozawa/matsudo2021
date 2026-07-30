@@ -15,6 +15,8 @@ import { getColor } from "../utils/color";
 
 import { dayflagLabels, timezoneLabels } from "../utils/labels";
 
+const selectedColors = ["#2563eb", "#dc2626"];
+
 function MapAutoFit({ data }) {
   const map = useMap();
 
@@ -44,7 +46,7 @@ function FlowMap({
   getPlaceName,
   showMesh,
   showStations,
-  selectedMeshId,
+  selectedMeshIds,
   onMeshSelect,
 }) {
   return (
@@ -66,17 +68,19 @@ function FlowMap({
 
         {showMesh &&
           data.map((item) => {
-            const isSelected = item.mesh1kmid === selectedMeshId;
+            const selectedIndex = selectedMeshIds.indexOf(item.mesh1kmid);
+            const isSelected = selectedIndex !== -1;
+            const selectedColor = selectedColors[selectedIndex];
 
             return (
               <Rectangle
                 key={`${item.mesh1kmid}-${item.dayflag}-${item.timezone}`}
                 bounds={mesh1kmToBounds(item.mesh1kmid)}
                 pathOptions={{
-                  color: isSelected ? "#000" : "#555",
-                  weight: isSelected ? 3 : 0.7,
+                  color: isSelected ? selectedColor : "#555",
+                  weight: isSelected ? 4 : 0.7,
                   fillColor: getColor(item.population, maxPopulation),
-                  fillOpacity: isSelected ? 0.65 : 0.45,
+                  fillOpacity: isSelected ? 0.6 : 0.45,
                 }}
                 eventHandlers={{
                   click: () => onMeshSelect(item.mesh1kmid),
@@ -95,8 +99,6 @@ function FlowMap({
                     区分：{dayflagLabels[item.dayflag]}
                     <br />
                     時間帯：{timezoneLabels[item.timezone]}
-                    <br />
-                    <strong>右側に月別比較を表示します</strong>
                   </div>
                 </Popup>
               </Rectangle>
