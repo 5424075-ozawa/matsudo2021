@@ -8,7 +8,6 @@ import {
 } from "react-leaflet";
 import { latLngBounds } from "leaflet";
 
-import FacilityMarkers from "./FacilityMarkers";
 import { mesh1kmToBounds } from "../utils/mesh";
 import { getColor } from "../utils/color";
 
@@ -57,8 +56,6 @@ function FlowMap({ data, maxPopulation, getPlaceName }) {
         />
 
         <MapAutoFit data={data} />
-
-        <FacilityMarkers data={data} />
 
         {data.map((item) => (
           <Rectangle
