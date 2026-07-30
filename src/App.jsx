@@ -13,13 +13,13 @@ function App() {
   const [month, setMonth] = useState("01");
   const [dayflag, setDayflag] = useState("0");
   const [timezone, setTimezone] = useState("0");
-  const [selectedCity, setSelectedCity] = useState("12207");
+  const [selectedArea, setSelectedArea] = useState("tokatsu");
 
   const {
     data: allData,
     loading,
     error,
-  } = useFlowData(month, selectedCity);
+  } = useFlowData(month, selectedArea);
 
   const filteredData = useMemo(() => {
     return allData.filter(
@@ -39,18 +39,12 @@ function App() {
 
     const maxPopulation =
       filteredData.length > 0
-        ? Math.max(
-            ...filteredData.map(
-              (item) => item.population
-            )
-          )
+        ? Math.max(...filteredData.map((item) => item.population))
         : 0;
 
     const averagePopulation =
       filteredData.length > 0
-        ? Math.round(
-            totalPopulation / filteredData.length
-          )
+        ? Math.round(totalPopulation / filteredData.length)
         : 0;
 
     return {
@@ -62,9 +56,7 @@ function App() {
 
   const ranking = useMemo(() => {
     return [...filteredData]
-      .sort(
-        (a, b) => b.population - a.population
-      )
+      .sort((a, b) => b.population - a.population)
       .slice(0, 5);
   }, [filteredData]);
 
@@ -76,19 +68,11 @@ function App() {
         month={month}
         dayflag={dayflag}
         timezone={timezone}
-        selectedCity={selectedCity}
-        onMonthChange={(event) =>
-          setMonth(event.target.value)
-        }
-        onDayflagChange={(event) =>
-          setDayflag(event.target.value)
-        }
-        onTimezoneChange={(event) =>
-          setTimezone(event.target.value)
-        }
-        onCityChange={(event) =>
-          setSelectedCity(event.target.value)
-        }
+        selectedArea={selectedArea}
+        onMonthChange={(event) => setMonth(event.target.value)}
+        onDayflagChange={(event) => setDayflag(event.target.value)}
+        onTimezoneChange={(event) => setTimezone(event.target.value)}
+        onAreaChange={(event) => setSelectedArea(event.target.value)}
       />
 
       <SummaryCards
@@ -101,17 +85,9 @@ function App() {
         averagePopulation={statistics.averagePopulation}
       />
 
-      {loading && (
-        <p className="message">
-          読み込み中...
-        </p>
-      )}
+      {loading && <p className="message">読み込み中...</p>}
 
-      {error && (
-        <p className="error">
-          {error}
-        </p>
-      )}
+      {error && <p className="error">{error}</p>}
 
       <main className="main">
         <FlowMap

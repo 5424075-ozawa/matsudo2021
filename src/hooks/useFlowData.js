@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { serviceAreas } from "../utils/serviceAreas";
 
-export function useFlowData(month, selectedCity) {
+export function useFlowData(month, selectedArea) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +27,9 @@ export function useFlowData(month, selectedCity) {
 
         const text = await response.text();
         const lines = text.trim().split(/\r?\n/);
-        const headers = lines[0].split(",").map((header) => header.trim());
+        const headers = lines[0]
+          .split(",")
+          .map((header) => header.trim());
 
         const rows = lines.slice(1).map((line) => {
           const values = line.split(",");
@@ -41,9 +44,18 @@ export function useFlowData(month, selectedCity) {
           return row;
         });
 
-        const filteredData = rows.filter(
-          (row) => row.citycode === selectedCity
-        );
+        const area = serviceAreas[selectedArea];
+
+        if (!area) {
+          throw new Error("選択された営業区域が見つかりません");
+        }
+
+        const filteredData =
+          area.citycodes === "chiba"
+            ? rows.filter((row) => row.citycode.startsWith("12"))
+            : rows.filter((row) =>
+                area.citycodes.includes(row.citycode)
+              );
 
         setData(filteredData);
       } catch (err) {
@@ -62,7 +74,7 @@ export function useFlowData(month, selectedCity) {
     return () => {
       controller.abort();
     };
-  }, [month, selectedCity]);
+  }, [month, selectedArea]);
 
   return {
     data,

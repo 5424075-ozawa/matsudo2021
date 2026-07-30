@@ -1,25 +1,26 @@
 import { months } from "../utils/labels";
+import { serviceAreas } from "../utils/serviceAreas";
 
 function ControlPanel({
   month,
   dayflag,
   timezone,
-  selectedCity,
+  selectedArea,
   onMonthChange,
   onDayflagChange,
   onTimezoneChange,
-  onCityChange,
+  onAreaChange,
 }) {
   return (
     <section className="controls">
       <label>
-        対象地域：
-        <select value={selectedCity} onChange={onCityChange}>
-          <option value="12207">松戸市</option>
-          <option value="12217">柏市</option>
-          <option value="12220">流山市</option>
-          <option value="12221">八千代市</option>
-          <option value="12227">浦安市</option>
+        対象営業区域：
+        <select value={selectedArea} onChange={onAreaChange}>
+          {Object.entries(serviceAreas).map(([key, area]) => (
+            <option key={key} value={key}>
+              {area.label}
+            </option>
+          ))}
         </select>
       </label>
 

@@ -1,10 +1,14 @@
+import { useEffect } from "react";
 import {
   MapContainer,
   Popup,
   Rectangle,
   TileLayer,
+  useMap,
 } from "react-leaflet";
+import { latLngBounds } from "leaflet";
 
+import FacilityMarkers from "./FacilityMarkers";
 import { mesh1kmToBounds } from "../utils/mesh";
 import { getColor } from "../utils/color";
 
@@ -12,6 +16,29 @@ import {
   dayflagLabels,
   timezoneLabels,
 } from "../utils/labels";
+
+function MapAutoFit({ data }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (data.length === 0) return;
+
+    const bounds = latLngBounds([]);
+
+    data.forEach((item) => {
+      const meshBounds = mesh1kmToBounds(item.mesh1kmid);
+      bounds.extend(meshBounds[0]);
+      bounds.extend(meshBounds[1]);
+    });
+
+    map.fitBounds(bounds, {
+      padding: [30, 30],
+      maxZoom: 13,
+    });
+  }, [data, map]);
+
+  return null;
+}
 
 function FlowMap({ data, maxPopulation, getPlaceName }) {
   return (
@@ -28,6 +55,10 @@ function FlowMap({ data, maxPopulation, getPlaceName }) {
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapAutoFit data={data} />
+
+        <FacilityMarkers data={data} />
 
         {data.map((item) => (
           <Rectangle
