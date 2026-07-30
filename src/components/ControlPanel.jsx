@@ -4,12 +4,25 @@ function ControlPanel({
   month,
   dayflag,
   timezone,
+  selectedCity,
   onMonthChange,
   onDayflagChange,
   onTimezoneChange,
+  onCityChange,
 }) {
   return (
     <section className="controls">
+      <label>
+        対象地域：
+        <select value={selectedCity} onChange={onCityChange}>
+          <option value="12207">松戸市</option>
+          <option value="12217">柏市</option>
+          <option value="12220">流山市</option>
+          <option value="12221">八千代市</option>
+          <option value="12227">浦安市</option>
+        </select>
+      </label>
+
       <label>
         月：
         <select value={month} onChange={onMonthChange}>

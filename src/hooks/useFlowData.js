@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useFlowData(month) {
+export function useFlowData(month, selectedCity) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,11 +41,11 @@ export function useFlowData(month) {
           return row;
         });
 
-        const matsudoData = rows.filter(
-          (row) => row.citycode === "12207"
+        const filteredData = rows.filter(
+          (row) => row.citycode === selectedCity
         );
 
-        setData(matsudoData);
+        setData(filteredData);
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error(err);
@@ -62,7 +62,7 @@ export function useFlowData(month) {
     return () => {
       controller.abort();
     };
-  }, [month]);
+  }, [month, selectedCity]);
 
   return {
     data,

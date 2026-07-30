@@ -13,6 +13,7 @@ function App() {
   const [month, setMonth] = useState("01");
   const [dayflag, setDayflag] = useState("0");
   const [timezone, setTimezone] = useState("0");
+  const [selectedCity, setSelectedCity] = useState("12207");
 
   const {
     data: allData,
