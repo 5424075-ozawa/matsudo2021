@@ -19,7 +19,7 @@ function App() {
     data: allData,
     loading,
     error,
-  } = useFlowData(month);
+  } = useFlowData(month, selectedCity);
 
   const filteredData = useMemo(() => {
     return allData.filter(
@@ -76,6 +76,7 @@ function App() {
         month={month}
         dayflag={dayflag}
         timezone={timezone}
+        selectedCity={selectedCity}
         onMonthChange={(event) =>
           setMonth(event.target.value)
         }
@@ -84,6 +85,9 @@ function App() {
         }
         onTimezoneChange={(event) =>
           setTimezone(event.target.value)
+        }
+        onCityChange={(event) =>
+          setSelectedCity(event.target.value)
         }
       />
 
