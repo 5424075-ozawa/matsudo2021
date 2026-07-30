@@ -5,6 +5,7 @@ import ControlPanel from "./components/ControlPanel";
 import SummaryCards from "./components/SummaryCards";
 import FlowMap from "./components/FlowMap";
 import RankingPanel from "./components/RankingPanel";
+import MeshComparisonPanel from "./components/MeshComparisonPanel";
 
 import { useFlowData } from "./hooks/useFlowData";
 import { usePlaceNames } from "./hooks/usePlaceNames";
@@ -17,6 +18,8 @@ function App() {
 
   const [showMesh, setShowMesh] = useState(true);
   const [showStations, setShowStations] = useState(true);
+
+  const [selectedMeshId, setSelectedMeshId] = useState(null);
 
   const {
     data: allData,
@@ -77,7 +80,10 @@ function App() {
         onMonthChange={(event) => setMonth(event.target.value)}
         onDayflagChange={(event) => setDayflag(event.target.value)}
         onTimezoneChange={(event) => setTimezone(event.target.value)}
-        onAreaChange={(event) => setSelectedArea(event.target.value)}
+        onAreaChange={(event) => {
+          setSelectedArea(event.target.value);
+          setSelectedMeshId(null);
+        }}
         onShowMeshChange={(event) => setShowMesh(event.target.checked)}
         onShowStationsChange={(event) => setShowStations(event.target.checked)}
       />
@@ -103,12 +109,23 @@ function App() {
           getPlaceName={getPlaceName}
           showMesh={showMesh}
           showStations={showStations}
+          selectedMeshId={selectedMeshId}
+          onMeshSelect={setSelectedMeshId}
         />
 
-        <RankingPanel
-          ranking={ranking}
-          getPlaceName={getPlaceName}
-        />
+        <div className="sidePanel">
+          <MeshComparisonPanel
+            selectedMeshId={selectedMeshId}
+            dayflag={dayflag}
+            timezone={timezone}
+            getPlaceName={getPlaceName}
+          />
+
+          <RankingPanel
+            ranking={ranking}
+            getPlaceName={getPlaceName}
+          />
+        </div>
       </main>
 
       <footer className="footer">

@@ -44,6 +44,8 @@ function FlowMap({
   getPlaceName,
   showMesh,
   showStations,
+  selectedMeshId,
+  onMeshSelect,
 }) {
   return (
     <div className="mapArea">
@@ -63,34 +65,43 @@ function FlowMap({
         <MapAutoFit data={data} />
 
         {showMesh &&
-          data.map((item) => (
-            <Rectangle
-              key={`${item.mesh1kmid}-${item.dayflag}-${item.timezone}`}
-              bounds={mesh1kmToBounds(item.mesh1kmid)}
-              pathOptions={{
-                color: "#555",
-                weight: 0.7,
-                fillColor: getColor(item.population, maxPopulation),
-                fillOpacity: 0.45,
-              }}
-            >
-              <Popup>
-                <div>
-                  <strong>{getPlaceName(item.mesh1kmid)}</strong>
-                  <br />
-                  メッシュID：{item.mesh1kmid}
-                  <br />
-                  滞在人口：{item.population.toLocaleString()}人
-                  <br />
-                  年月：{item.year}年{Number(item.month)}月
-                  <br />
-                  区分：{dayflagLabels[item.dayflag]}
-                  <br />
-                  時間帯：{timezoneLabels[item.timezone]}
-                </div>
-              </Popup>
-            </Rectangle>
-          ))}
+          data.map((item) => {
+            const isSelected = item.mesh1kmid === selectedMeshId;
+
+            return (
+              <Rectangle
+                key={`${item.mesh1kmid}-${item.dayflag}-${item.timezone}`}
+                bounds={mesh1kmToBounds(item.mesh1kmid)}
+                pathOptions={{
+                  color: isSelected ? "#000" : "#555",
+                  weight: isSelected ? 3 : 0.7,
+                  fillColor: getColor(item.population, maxPopulation),
+                  fillOpacity: isSelected ? 0.65 : 0.45,
+                }}
+                eventHandlers={{
+                  click: () => onMeshSelect(item.mesh1kmid),
+                }}
+              >
+                <Popup>
+                  <div>
+                    <strong>{getPlaceName(item.mesh1kmid)}</strong>
+                    <br />
+                    メッシュID：{item.mesh1kmid}
+                    <br />
+                    滞在人口：{item.population.toLocaleString()}人
+                    <br />
+                    年月：{item.year}年{Number(item.month)}月
+                    <br />
+                    区分：{dayflagLabels[item.dayflag]}
+                    <br />
+                    時間帯：{timezoneLabels[item.timezone]}
+                    <br />
+                    <strong>右側に月別比較を表示します</strong>
+                  </div>
+                </Popup>
+              </Rectangle>
+            );
+          })}
 
         {showStations && <StationMarkers data={data} />}
       </MapContainer>
