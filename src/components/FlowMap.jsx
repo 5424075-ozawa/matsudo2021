@@ -8,13 +8,12 @@ import {
 } from "react-leaflet";
 import { latLngBounds } from "leaflet";
 
+import StationMarkers from "./StationMarkers";
+
 import { mesh1kmToBounds } from "../utils/mesh";
 import { getColor } from "../utils/color";
 
-import {
-  dayflagLabels,
-  timezoneLabels,
-} from "../utils/labels";
+import { dayflagLabels, timezoneLabels } from "../utils/labels";
 
 function MapAutoFit({ data }) {
   const map = useMap();
@@ -39,7 +38,13 @@ function MapAutoFit({ data }) {
   return null;
 }
 
-function FlowMap({ data, maxPopulation, getPlaceName }) {
+function FlowMap({
+  data,
+  maxPopulation,
+  getPlaceName,
+  showMesh,
+  showStations,
+}) {
   return (
     <div className="mapArea">
       <MapContainer
@@ -57,46 +62,37 @@ function FlowMap({ data, maxPopulation, getPlaceName }) {
 
         <MapAutoFit data={data} />
 
-        {data.map((item) => (
-          <Rectangle
-            key={`${item.mesh1kmid}-${item.dayflag}-${item.timezone}`}
-            bounds={mesh1kmToBounds(item.mesh1kmid)}
-            pathOptions={{
-              color: "#555",
-              weight: 0.7,
-              fillColor: getColor(
-                item.population,
-                maxPopulation
-              ),
-              fillOpacity: 0.45,
-            }}
-          >
-            <Popup>
-              <div>
-                <strong>{getPlaceName(item.mesh1kmid)}</strong>
+        {showMesh &&
+          data.map((item) => (
+            <Rectangle
+              key={`${item.mesh1kmid}-${item.dayflag}-${item.timezone}`}
+              bounds={mesh1kmToBounds(item.mesh1kmid)}
+              pathOptions={{
+                color: "#555",
+                weight: 0.7,
+                fillColor: getColor(item.population, maxPopulation),
+                fillOpacity: 0.45,
+              }}
+            >
+              <Popup>
+                <div>
+                  <strong>{getPlaceName(item.mesh1kmid)}</strong>
+                  <br />
+                  メッシュID：{item.mesh1kmid}
+                  <br />
+                  滞在人口：{item.population.toLocaleString()}人
+                  <br />
+                  年月：{item.year}年{Number(item.month)}月
+                  <br />
+                  区分：{dayflagLabels[item.dayflag]}
+                  <br />
+                  時間帯：{timezoneLabels[item.timezone]}
+                </div>
+              </Popup>
+            </Rectangle>
+          ))}
 
-                <br />
-                メッシュID：{item.mesh1kmid}
-
-                <br />
-                滞在人口：
-                {item.population.toLocaleString()}人
-
-                <br />
-                年月：
-                {item.year}年{Number(item.month)}月
-
-                <br />
-                区分：
-                {dayflagLabels[item.dayflag]}
-
-                <br />
-                時間帯：
-                {timezoneLabels[item.timezone]}
-              </div>
-            </Popup>
-          </Rectangle>
-        ))}
+        {showStations && <StationMarkers data={data} />}
       </MapContainer>
     </div>
   );

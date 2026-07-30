@@ -6,10 +6,14 @@ function ControlPanel({
   dayflag,
   timezone,
   selectedArea,
+  showMesh,
+  showStations,
   onMonthChange,
   onDayflagChange,
   onTimezoneChange,
   onAreaChange,
+  onShowMeshChange,
+  onShowStationsChange,
 }) {
   return (
     <section className="controls">
@@ -51,6 +55,24 @@ function ControlPanel({
           <option value="1">昼</option>
           <option value="2">夜</option>
         </select>
+      </label>
+
+      <label className="checkboxLabel">
+        <input
+          type="checkbox"
+          checked={showMesh}
+          onChange={onShowMeshChange}
+        />
+        メッシュ表示
+      </label>
+
+      <label className="checkboxLabel">
+        <input
+          type="checkbox"
+          checked={showStations}
+          onChange={onShowStationsChange}
+        />
+        駅表示
       </label>
     </section>
   );

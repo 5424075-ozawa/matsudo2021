@@ -15,6 +15,9 @@ function App() {
   const [timezone, setTimezone] = useState("0");
   const [selectedArea, setSelectedArea] = useState("tokatsu");
 
+  const [showMesh, setShowMesh] = useState(true);
+  const [showStations, setShowStations] = useState(true);
+
   const {
     data: allData,
     loading,
@@ -69,10 +72,14 @@ function App() {
         dayflag={dayflag}
         timezone={timezone}
         selectedArea={selectedArea}
+        showMesh={showMesh}
+        showStations={showStations}
         onMonthChange={(event) => setMonth(event.target.value)}
         onDayflagChange={(event) => setDayflag(event.target.value)}
         onTimezoneChange={(event) => setTimezone(event.target.value)}
         onAreaChange={(event) => setSelectedArea(event.target.value)}
+        onShowMeshChange={(event) => setShowMesh(event.target.checked)}
+        onShowStationsChange={(event) => setShowStations(event.target.checked)}
       />
 
       <SummaryCards
@@ -94,6 +101,8 @@ function App() {
           data={filteredData}
           maxPopulation={statistics.maxPopulation}
           getPlaceName={getPlaceName}
+          showMesh={showMesh}
+          showStations={showStations}
         />
 
         <RankingPanel
