@@ -10,7 +10,7 @@ import {
 import { latLngBounds } from "leaflet";
 
 import StationMarkers from "./StationMarkers";
-import FacilityMarkers from "./FacilityMarkers";
+import OsmCommercialMarkers from "./OsmCommercialMarkers";
 
 import { mesh1kmToBounds } from "../utils/mesh";
 import { getColor } from "../utils/color";
@@ -85,7 +85,7 @@ function FlowMap({
   maxPopulation,
   getPlaceName,
   showStations,
-  showFacilities,
+  showCommercialFacilities,
   selectedMeshIds,
   selectedMeshColorSlots,
   meshFocusRequest,
@@ -151,7 +151,7 @@ function FlowMap({
         })}
 
         {showStations && <StationMarkers data={data} />}
-        {showFacilities && <FacilityMarkers data={data} />}
+        {showCommercialFacilities && <OsmCommercialMarkers data={data} />}
       </MapContainer>
     </div>
   );

@@ -18,7 +18,7 @@ function App() {
   const [selectedArea, setSelectedArea] = useState("tokatsu");
 
   const [showStations, setShowStations] = useState(true);
-  const [showFacilities, setShowFacilities] = useState(false);
+  const [showCommercialFacilities, setShowCommercialFacilities] = useState(true);
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
   const [comparisonHeight, setComparisonHeight] = useState(75);
@@ -143,7 +143,7 @@ function App() {
           maxPopulation={statistics.maxPopulation}
           getPlaceName={getPlaceName}
           showStations={showStations}
-          showFacilities={showFacilities}
+          showCommercialFacilities={showCommercialFacilities}
           selectedMeshIds={selectedMeshIds}
           selectedMeshColorSlots={selectedMeshColorSlots}
           meshFocusRequest={meshFocusRequest}
@@ -164,7 +164,7 @@ function App() {
             timezone={timezone}
             selectedArea={selectedArea}
             showStations={showStations}
-            showFacilities={showFacilities}
+            showCommercialFacilities={showCommercialFacilities}
             onMonthChange={(event) => setMonth(event.target.value)}
             onDayflagChange={(event) => setDayflag(event.target.value)}
             onTimezoneChange={(event) => setTimezone(event.target.value)}
@@ -176,8 +176,8 @@ function App() {
             onShowStationsChange={() =>
               setShowStations((current) => !current)
             }
-            onShowFacilitiesChange={() =>
-              setShowFacilities((current) => !current)
+            onShowCommercialFacilitiesChange={() =>
+              setShowCommercialFacilities((current) => !current)
             }
           />
 
@@ -250,8 +250,11 @@ function App() {
           </div>
         )}
 
-        <aside className="mapLegend" aria-label="人口の凡例">
-          <Legend maxPopulation={statistics.maxPopulation} />
+        <aside className="mapLegend" aria-label="地図の凡例">
+          <Legend
+            maxPopulation={statistics.maxPopulation}
+            showCommercialFacilities={showCommercialFacilities}
+          />
         </aside>
 
         <div className="mapSummary">

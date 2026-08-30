@@ -7,13 +7,13 @@ function ControlPanel({
   timezone,
   selectedArea,
   showStations,
-  showFacilities,
+  showCommercialFacilities,
   onMonthChange,
   onDayflagChange,
   onTimezoneChange,
   onAreaChange,
   onShowStationsChange,
-  onShowFacilitiesChange,
+  onShowCommercialFacilitiesChange,
 }) {
   return (
     <section className="controls">
@@ -57,23 +57,27 @@ function ControlPanel({
         </select>
       </label>
 
-      <button
-        type="button"
-        className={`displayToggleButton ${showStations ? "active" : ""}`}
-        aria-pressed={showStations}
-        onClick={onShowStationsChange}
-      >
-        駅
-      </button>
+      <div className="displayToggleGroup" aria-label="地図表示切り替え">
+        <button
+          type="button"
+          className={`displayToggleButton ${showStations ? "active" : ""}`}
+          aria-pressed={showStations}
+          onClick={onShowStationsChange}
+        >
+          駅
+        </button>
 
-      <button
-        type="button"
-        className={`displayToggleButton ${showFacilities ? "active" : ""}`}
-        aria-pressed={showFacilities}
-        onClick={onShowFacilitiesChange}
-      >
-        施設
-      </button>
+        <button
+          type="button"
+          className={`displayToggleButton ${
+            showCommercialFacilities ? "active" : ""
+          }`}
+          aria-pressed={showCommercialFacilities}
+          onClick={onShowCommercialFacilitiesChange}
+        >
+          商業施設
+        </button>
+      </div>
     </section>
   );
 }

@@ -20,11 +20,11 @@ function isPointInArea(lat, lng, meshBoundsList) {
 }
 
 function getMarkerRadius(passenger, maxPassenger) {
-  if (!maxPassenger) return 6;
+  if (!maxPassenger) return 8;
 
   const ratio = passenger / maxPassenger;
 
-  return 5 + Math.sqrt(ratio) * 25;
+  return 7 + Math.sqrt(ratio) * 28;
 }
 
 function StationMarkers({ data }) {

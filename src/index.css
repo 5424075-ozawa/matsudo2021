@@ -589,7 +589,7 @@ body,
 }
 
 .mapTopLeft .controls {
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 10px 10px 12px;
   border: 0;
@@ -598,6 +598,14 @@ body,
   background: transparent;
   box-shadow: none;
   backdrop-filter: none;
+}
+
+.displayToggleGroup {
+  display: flex;
+  flex: 0 0 100%;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
 }
 
 .mapTopLeft .controls label {
@@ -645,21 +653,37 @@ body,
 .facilityMarkerPin {
   position: relative;
   display: block;
-  width: 22px;
-  height: 22px;
-  border: 3px solid #fff;
+  width: var(--pin-size, 22px);
+  height: var(--pin-size, 22px);
+  border: max(2px, calc(var(--pin-size, 22px) * 0.11)) solid #fff;
   border-radius: 50% 50% 50% 0;
-  background: #7c3aed;
+  background: #dc2626;
   box-shadow: 0 2px 7px rgba(15, 23, 42, 0.4);
   transform: rotate(-45deg);
 }
 
+.facilityMarkerPinSmall {
+  background: #2563eb;
+}
+
+.facilityMarkerPinMedium {
+  background: #eab308;
+}
+
+.facilityMarkerPinLarge {
+  background: #dc2626;
+}
+
+.facilityMarkerPinUnknownSize {
+  background: #64748b;
+}
+
 .facilityMarkerPin::after {
   position: absolute;
-  top: 7px;
-  left: 7px;
-  width: 8px;
-  height: 8px;
+  top: 32%;
+  left: 32%;
+  width: 36%;
+  height: 36%;
   border-radius: 50%;
   background: #fff;
   content: "";
@@ -676,7 +700,7 @@ body,
 
 .facilityPopup span {
   margin-top: 3px;
-  color: #7c3aed;
+  color: #dc2626;
   font-weight: 700;
 }
 
@@ -896,6 +920,54 @@ body,
 .mapLegend .box {
   width: 20px;
   height: 12px;
+}
+
+.facilityLegend {
+  margin-top: 9px;
+  padding-top: 7px;
+  border-top: 1px solid #cbd5e1;
+}
+
+.facilityLegend h3 {
+  margin: 0 0 7px;
+  font-size: 12px;
+}
+
+.facilityLegendPin {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  margin: 0 5px;
+  border: 2px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.4);
+  transform: rotate(-45deg);
+}
+
+.facilityLegendPin.large {
+  width: 15px;
+  height: 15px;
+  margin-right: 1px;
+  background: #dc2626;
+}
+
+.facilityLegendPin.medium {
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  background: #eab308;
+}
+
+.facilityLegendPin.small {
+  background: #2563eb;
+}
+
+.facilityLegendPin.unknown {
+  width: 9px;
+  height: 9px;
+  margin-right: 7px;
+  background: #64748b;
 }
 
 .mapSummary {
