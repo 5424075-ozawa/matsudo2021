@@ -375,6 +375,8 @@ function MeshComparisonPanel({
     selectedMeshIds.length === 1 || Boolean(directSingleMeshId);
   const isMultiMeshMode =
     selectedMeshIds.length >= 2 && !directSingleMeshId;
+  const hideVisibilityControls =
+    selectedMeshIds.length >= 2 && Boolean(directSingleMeshId);
 
   useEffect(() => {
     setHiddenMeshIds((currentIds) =>
@@ -650,22 +652,24 @@ function MeshComparisonPanel({
             style={{ "--mesh-color": mesh.color }}
           >
             <span>{mesh.name}</span>
-            <button
-              type="button"
-              className={hiddenMeshIds.includes(mesh.id) ? "active" : ""}
-              onClick={() => {
-                if (directSingleMeshId === mesh.id) {
-                  setSingleComparisonMeshId("");
-                }
-                setHiddenMeshIds((currentIds) =>
-                  currentIds.includes(mesh.id)
-                    ? currentIds.filter((id) => id !== mesh.id)
-                    : [...currentIds, mesh.id]
-                );
-              }}
-            >
-              {hiddenMeshIds.includes(mesh.id) ? "表示" : "非表示"}
-            </button>
+            {!hideVisibilityControls && (
+              <button
+                type="button"
+                className={hiddenMeshIds.includes(mesh.id) ? "active" : ""}
+                onClick={() => {
+                  if (directSingleMeshId === mesh.id) {
+                    setSingleComparisonMeshId("");
+                  }
+                  setHiddenMeshIds((currentIds) =>
+                    currentIds.includes(mesh.id)
+                      ? currentIds.filter((id) => id !== mesh.id)
+                      : [...currentIds, mesh.id]
+                  );
+                }}
+              >
+                {hiddenMeshIds.includes(mesh.id) ? "表示" : "非表示"}
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -685,7 +689,7 @@ function MeshComparisonPanel({
 
       {isSingleMode && selectedMeshIds.length === 1 && (
         <p className="comparisonNote">
-          もう1つメッシュをクリックすると、2地点比較に切り替わります。
+          他のメッシュをクリックすると、複数地点比較（最大5地点）に切り替わります。
         </p>
       )}
 

@@ -125,7 +125,10 @@ function MapPointFocus({ request }) {
   useEffect(() => {
     if (!Number.isFinite(request.lat) || !Number.isFinite(request.lng)) return;
 
-    map.flyTo([request.lat, request.lng], Math.max(map.getZoom(), 15), {
+    const isCompactScreen = map.getContainer().clientWidth <= 900;
+    const focusZoom = isCompactScreen ? 14 : 15;
+
+    map.flyTo([request.lat, request.lng], focusZoom, {
       animate: true,
       duration: 0.7,
     });

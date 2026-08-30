@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { mesh1kmToBounds } from "../utils/mesh";
 
@@ -17,6 +17,8 @@ function PlaceSearch({ data, onSelect }) {
   const [places, setPlaces] = useState([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const resultsRef = useRef(null);
+  const [resultsOffset, setResultsOffset] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -83,6 +85,35 @@ function PlaceSearch({ data, onSelect }) {
       .slice(0, 8);
   }, [query, visiblePlaces]);
 
+  useLayoutEffect(() => {
+    if (!open || !query.trim() || !resultsRef.current) {
+      setResultsOffset(0);
+      return undefined;
+    }
+
+    const keepInsideViewport = () => {
+      const resultsElement = resultsRef.current;
+      const anchorElement = resultsElement?.offsetParent;
+      const bounds = resultsElement?.getBoundingClientRect();
+      const anchorBounds = anchorElement?.getBoundingClientRect();
+      if (!bounds || !anchorBounds) return;
+
+      const rightLimit = window.innerWidth - 10;
+      const naturalRight = anchorBounds.right;
+      const naturalLeft = naturalRight - bounds.width;
+      let nextOffset = 0;
+
+      if (naturalRight > rightLimit) nextOffset = rightLimit - naturalRight;
+      if (naturalLeft + nextOffset < 10) nextOffset += 10 - (naturalLeft + nextOffset);
+
+      setResultsOffset(nextOffset);
+    };
+
+    keepInsideViewport();
+    window.addEventListener("resize", keepInsideViewport);
+    return () => window.removeEventListener("resize", keepInsideViewport);
+  }, [open, query, results.length]);
+
   function selectPlace(place) {
     setQuery(place.name);
     setOpen(false);
@@ -114,7 +145,12 @@ function PlaceSearch({ data, onSelect }) {
       />
 
       {open && query.trim() && (
-        <div className="placeSearchResults" role="listbox">
+        <div
+          ref={resultsRef}
+          className="placeSearchResults"
+          role="listbox"
+          style={{ transform: `translateX(${resultsOffset}px)` }}
+        >
           {results.length > 0 ? (
             results.map((place) => (
               <button
