@@ -7,11 +7,13 @@ function ControlPanel({
   timezone,
   selectedArea,
   showStations,
+  showFacilities,
   onMonthChange,
   onDayflagChange,
   onTimezoneChange,
   onAreaChange,
   onShowStationsChange,
+  onShowFacilitiesChange,
 }) {
   return (
     <section className="controls">
@@ -61,7 +63,16 @@ function ControlPanel({
         aria-pressed={showStations}
         onClick={onShowStationsChange}
       >
-        駅表示
+        駅
+      </button>
+
+      <button
+        type="button"
+        className={`displayToggleButton ${showFacilities ? "active" : ""}`}
+        aria-pressed={showFacilities}
+        onClick={onShowFacilitiesChange}
+      >
+        施設
       </button>
     </section>
   );

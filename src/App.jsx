@@ -18,6 +18,7 @@ function App() {
   const [selectedArea, setSelectedArea] = useState("tokatsu");
 
   const [showStations, setShowStations] = useState(true);
+  const [showFacilities, setShowFacilities] = useState(false);
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
   const [comparisonHeight, setComparisonHeight] = useState(75);
@@ -142,6 +143,7 @@ function App() {
           maxPopulation={statistics.maxPopulation}
           getPlaceName={getPlaceName}
           showStations={showStations}
+          showFacilities={showFacilities}
           selectedMeshIds={selectedMeshIds}
           selectedMeshColorSlots={selectedMeshColorSlots}
           meshFocusRequest={meshFocusRequest}
@@ -162,6 +164,7 @@ function App() {
             timezone={timezone}
             selectedArea={selectedArea}
             showStations={showStations}
+            showFacilities={showFacilities}
             onMonthChange={(event) => setMonth(event.target.value)}
             onDayflagChange={(event) => setDayflag(event.target.value)}
             onTimezoneChange={(event) => setTimezone(event.target.value)}
@@ -172,6 +175,9 @@ function App() {
             }}
             onShowStationsChange={() =>
               setShowStations((current) => !current)
+            }
+            onShowFacilitiesChange={() =>
+              setShowFacilities((current) => !current)
             }
           />
 
