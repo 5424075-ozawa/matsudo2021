@@ -18,6 +18,7 @@ function App() {
 
   const [showMesh, setShowMesh] = useState(true);
   const [showStations, setShowStations] = useState(true);
+  const [activePanel, setActivePanel] = useState("ranking");
 
   const [selectedMeshIds, setSelectedMeshIds] = useState([]);
 
@@ -87,70 +88,98 @@ function App() {
 
   return (
     <div className="page">
-      <Header />
+      <main className="mapStage">
+        <FlowMap
+          data={filteredData}
+          fitArea={loadedArea}
+          maxPopulation={statistics.maxPopulation}
+          getPlaceName={getPlaceName}
+          showMesh={showMesh}
+          showStations={showStations}
+          selectedMeshIds={selectedMeshIds}
+          onMeshSelect={handleMeshSelect}
+        />
 
-      <ControlPanel
-        month={month}
-        dayflag={dayflag}
-        timezone={timezone}
-        selectedArea={selectedArea}
-        showMesh={showMesh}
-        showStations={showStations}
-        onMonthChange={(event) => setMonth(event.target.value)}
-        onDayflagChange={(event) => setDayflag(event.target.value)}
-        onTimezoneChange={(event) => setTimezone(event.target.value)}
-        onAreaChange={(event) => {
-          setSelectedArea(event.target.value);
-          setSelectedMeshIds([]);
-        }}
-        onShowMeshChange={(event) => setShowMesh(event.target.checked)}
-        onShowStationsChange={(event) =>
-          setShowStations(event.target.checked)
-        }
-      />
+        <div className="mapTopLeft">
+          <Header />
 
-      <SummaryCards
-        month={month}
-        dayflag={dayflag}
-        timezone={timezone}
-        meshCount={filteredData.length}
-        totalPopulation={statistics.totalPopulation}
-        maxPopulation={statistics.maxPopulation}
-        averagePopulation={statistics.averagePopulation}
-      />
-
-      {loading && <p className="message">読み込み中...</p>}
-
-      {error && <p className="error">{error}</p>}
-
-      <main className="main">
-        <div className="mapColumn">
-          <FlowMap
-            data={filteredData}
-            fitArea={loadedArea}
-            maxPopulation={statistics.maxPopulation}
-            getPlaceName={getPlaceName}
-            showMesh={showMesh}
-            showStations={showStations}
-            selectedMeshIds={selectedMeshIds}
-            onMeshSelect={handleMeshSelect}
-          />
-
-          <MeshComparisonPanel
-            selectedMeshIds={selectedMeshIds}
+          <ControlPanel
+            month={month}
             dayflag={dayflag}
             timezone={timezone}
-            getPlaceName={getPlaceName}
-            onClear={clearSelectedMeshes}
+            selectedArea={selectedArea}
+            showMesh={showMesh}
+            showStations={showStations}
+            onMonthChange={(event) => setMonth(event.target.value)}
+            onDayflagChange={(event) => setDayflag(event.target.value)}
+            onTimezoneChange={(event) => setTimezone(event.target.value)}
+            onAreaChange={(event) => {
+              setSelectedArea(event.target.value);
+              setSelectedMeshIds([]);
+            }}
+            onShowMeshChange={(event) => setShowMesh(event.target.checked)}
+            onShowStationsChange={(event) =>
+              setShowStations(event.target.checked)
+            }
           />
         </div>
 
-        <div className="sidePanel">
-          <RankingPanel
-            ranking={ranking}
-            getPlaceName={getPlaceName}
+        <div className="panelSwitcher" aria-label="分析パネル切り替え">
+          <button
+            type="button"
+            className={activePanel === "ranking" ? "active" : ""}
+            onClick={() =>
+              setActivePanel(activePanel === "ranking" ? null : "ranking")
+            }
+          >
+            ランキング
+          </button>
+          <button
+            type="button"
+            className={activePanel === "comparison" ? "active" : ""}
+            onClick={() =>
+              setActivePanel(
+                activePanel === "comparison" ? null : "comparison"
+              )
+            }
+          >
+            メッシュ分析
+          </button>
+        </div>
+
+        {activePanel && (
+          <div className="mapAnalysisPanel">
+            {activePanel === "ranking" ? (
+              <RankingPanel
+                ranking={ranking}
+                getPlaceName={getPlaceName}
+              />
+            ) : (
+              <MeshComparisonPanel
+                selectedMeshIds={selectedMeshIds}
+                dayflag={dayflag}
+                timezone={timezone}
+                getPlaceName={getPlaceName}
+                onClear={clearSelectedMeshes}
+              />
+            )}
+          </div>
+        )}
+
+        <div className="mapSummary">
+          <SummaryCards
+            month={month}
+            dayflag={dayflag}
+            timezone={timezone}
+            meshCount={filteredData.length}
+            totalPopulation={statistics.totalPopulation}
+            maxPopulation={statistics.maxPopulation}
+            averagePopulation={statistics.averagePopulation}
           />
         </div>
+
+        {loading && <p className="mapMessage message">読み込み中...</p>}
+        {error && <p className="mapMessage error">{error}</p>}
       </main>
 
       <footer className="footer">

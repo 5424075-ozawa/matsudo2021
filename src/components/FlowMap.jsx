@@ -59,7 +59,7 @@ function FlowMap({
         center={[35.7876, 139.9031]}
         zoom={12}
         style={{
-          height: "650px",
+          height: "100%",
           width: "100%",
         }}
       >

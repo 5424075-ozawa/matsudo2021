@@ -361,3 +361,256 @@ body,
 .chartTooltip p {
   margin: 4px 0;
 }
+
+/* Map-first dashboard layout */
+.page {
+  min-height: 100vh;
+  padding: 0;
+  background: #e5e7eb;
+}
+
+.mapStage {
+  position: relative;
+  height: calc(100vh - 48px);
+  min-height: 680px;
+  overflow: hidden;
+}
+
+.mapArea {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.leaflet-container {
+  height: 100%;
+}
+
+.mapTopLeft {
+  position: absolute;
+  z-index: 800;
+  top: 20px;
+  left: 20px;
+  width: min(720px, calc(100% - 420px));
+  pointer-events: none;
+}
+
+.header,
+.controls,
+.mapAnalysisPanel,
+.summary {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.header {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+}
+
+.header h1 {
+  font-size: clamp(20px, 2vw, 28px);
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
+.controls {
+  gap: 10px 16px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  pointer-events: auto;
+}
+
+.controls label {
+  font-size: 12px;
+}
+
+.controls select {
+  margin-left: 4px;
+  padding: 5px 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.panelSwitcher {
+  position: absolute;
+  z-index: 900;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.panelSwitcher button {
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.panelSwitcher button:hover,
+.panelSwitcher button.active {
+  background: #0f172a;
+  color: #fff;
+}
+
+.mapAnalysisPanel {
+  position: absolute;
+  z-index: 850;
+  top: 72px;
+  right: 20px;
+  width: min(400px, calc(100% - 40px));
+  max-height: calc(100% - 190px);
+  overflow: auto;
+  border-radius: 14px;
+}
+
+.mapAnalysisPanel .sidePanel,
+.mapAnalysisPanel .comparisonPanel {
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mapAnalysisPanel .sidePanel {
+  padding: 16px;
+}
+
+.mapAnalysisPanel .comparisonPanel {
+  padding: 16px;
+}
+
+.mapSummary {
+  position: absolute;
+  z-index: 800;
+  right: 20px;
+  bottom: 18px;
+  left: 20px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.35fr) repeat(4, minmax(120px, 1fr));
+  width: min(980px, 100%);
+  gap: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.card {
+  min-width: 0;
+  padding: 11px 14px;
+  border-right: 1px solid #e2e8f0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.card:last-child {
+  border-right: 0;
+}
+
+.card span {
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.card strong {
+  font-size: 15px;
+}
+
+.mapMessage {
+  position: absolute;
+  z-index: 1000;
+  top: 172px;
+  left: 20px;
+  margin: 0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+}
+
+.footer {
+  height: 48px;
+  margin: 0;
+  padding: 15px 20px;
+  background: #fff;
+  color: #64748b;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .mapStage {
+    height: calc(100vh - 64px);
+    min-height: 640px;
+  }
+
+  .mapTopLeft {
+    top: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+  }
+
+  .header p {
+    display: none;
+  }
+
+  .controls {
+    max-width: calc(100% - 0px);
+  }
+
+  .panelSwitcher {
+    top: 180px;
+    right: 10px;
+  }
+
+  .mapAnalysisPanel {
+    top: 228px;
+    right: 10px;
+    width: min(380px, calc(100% - 20px));
+    max-height: calc(100% - 340px);
+  }
+
+  .mapSummary {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  .summary {
+    grid-template-columns: repeat(5, minmax(145px, 1fr));
+    min-width: 760px;
+  }
+
+  .footer {
+    height: 64px;
+    padding: 12px 16px;
+    font-size: 11px;
+  }
+}
