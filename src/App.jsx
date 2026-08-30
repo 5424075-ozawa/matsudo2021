@@ -7,6 +7,7 @@ import FlowMap from "./components/FlowMap";
 import RankingPanel from "./components/RankingPanel";
 import MeshComparisonPanel from "./components/MeshComparisonPanel";
 import Legend from "./components/Legend";
+import PlaceSearch from "./components/PlaceSearch";
 
 import { useFlowData } from "./hooks/useFlowData";
 import { usePlaceNames } from "./hooks/usePlaceNames";
@@ -31,6 +32,11 @@ function App() {
     meshId: null,
     requestId: 0,
   });
+  const [pointFocusRequest, setPointFocusRequest] = useState({
+    lat: null,
+    lng: null,
+    requestId: 0,
+  });
 
   const {
     data: allData,
@@ -47,7 +53,7 @@ function App() {
     );
   }, [allData, dayflag, timezone]);
 
-  const { getPlaceName } = usePlaceNames(filteredData);
+  const { getPlaceName } = usePlaceNames();
 
   const statistics = useMemo(() => {
     const totalPopulation = filteredData.reduce(
@@ -165,6 +171,7 @@ function App() {
           selectedMeshIds={selectedMeshIds}
           selectedMeshColorSlots={selectedMeshColorSlots}
           meshFocusRequest={meshFocusRequest}
+          pointFocusRequest={pointFocusRequest}
           onMeshSelect={handleMeshSelect}
           onMapInteraction={() => {
             if (activePanel === "comparison") {
@@ -202,6 +209,18 @@ function App() {
         </div>
 
         <div className="panelSwitcher" aria-label="分析パネル切り替え">
+          <PlaceSearch
+            data={filteredData}
+            onSelect={(place) => {
+              if (place.type === "station") setShowStations(true);
+              if (place.type === "facility") setShowCommercialFacilities(true);
+              setPointFocusRequest((current) => ({
+                lat: place.lat,
+                lng: place.lng,
+                requestId: current.requestId + 1,
+              }));
+            }}
+          />
           <button
             type="button"
             className={activePanel === "ranking" ? "active" : ""}

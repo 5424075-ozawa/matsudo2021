@@ -93,6 +93,21 @@ function MapMeshFocus({ request }) {
   return null;
 }
 
+function MapPointFocus({ request }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!Number.isFinite(request.lat) || !Number.isFinite(request.lng)) return;
+
+    map.flyTo([request.lat, request.lng], Math.max(map.getZoom(), 15), {
+      animate: true,
+      duration: 0.7,
+    });
+  }, [map, request]);
+
+  return null;
+}
+
 function FlowMap({
   data,
   fitArea,
@@ -103,6 +118,7 @@ function FlowMap({
   selectedMeshIds,
   selectedMeshColorSlots,
   meshFocusRequest,
+  pointFocusRequest,
   onMeshSelect,
   onMapInteraction,
 }) {
@@ -123,6 +139,7 @@ function FlowMap({
 
         <MapAreaFit data={data} area={fitArea} />
         <MapMeshFocus request={meshFocusRequest} />
+        <MapPointFocus request={pointFocusRequest} />
         <MapInteractionHandler onInteraction={onMapInteraction} />
 
         {data.map((item) => {

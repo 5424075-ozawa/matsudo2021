@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "data:osm-commercial": "node scripts/fetchOsmCommercialFacilities.js"
+    "data:osm-commercial": "node scripts/fetchOsmCommercialFacilities.js",
+    "data:place-names": "node scripts/fetchPlaceNames.js"
   },
   "keywords": [],
   "author": "",
