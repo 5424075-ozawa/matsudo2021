@@ -155,6 +155,57 @@ function App() {
 
   return (
     <div className="page">
+      <div className="mapTopLeft mapTopBar">
+        <Header />
+
+        <ControlPanel
+          month={month}
+          dayflag={dayflag}
+          timezone={timezone}
+          selectedArea={selectedArea}
+          showStations={showStations}
+          showCommercialFacilities={showCommercialFacilities}
+          onMonthChange={(event) => setMonth(event.target.value)}
+          onDayflagChange={(event) => setDayflag(event.target.value)}
+          onTimezoneChange={(event) => setTimezone(event.target.value)}
+          onAreaChange={(event) => {
+            setSelectedArea(event.target.value);
+            setSelectedMeshIds([]);
+            setSelectedMeshColorSlots({});
+          }}
+          onShowStationsChange={() => setShowStations((current) => !current)}
+          onShowCommercialFacilitiesChange={() =>
+            setShowCommercialFacilities((current) => !current)
+          }
+        />
+
+        <div className="panelSwitcher" aria-label="分析パネル切り替え">
+          <PlaceSearch
+            data={filteredData}
+            onSelect={(place) => {
+              if (place.type === "station") setShowStations(true);
+              if (place.type === "facility") setShowCommercialFacilities(true);
+              setPointFocusRequest((current) => ({
+                lat: place.lat,
+                lng: place.lng,
+                requestId: current.requestId + 1,
+              }));
+            }}
+          />
+          <button
+            type="button"
+            className={`displayToggleButton rankingToggle ${
+              activePanel === "ranking" ? "active" : ""
+            }`}
+            onClick={() =>
+              setActivePanel(activePanel === "ranking" ? null : "ranking")
+            }
+          >
+            ランキング
+          </button>
+        </div>
+      </div>
+
       <main
         className={`mapStage ${
           activePanel === "comparison" ? "comparisonActive" : ""
@@ -179,58 +230,6 @@ function App() {
             }
           }}
         />
-
-        <div className="mapTopLeft">
-          <Header />
-
-          <ControlPanel
-            month={month}
-            dayflag={dayflag}
-            timezone={timezone}
-            selectedArea={selectedArea}
-            showStations={showStations}
-            showCommercialFacilities={showCommercialFacilities}
-            onMonthChange={(event) => setMonth(event.target.value)}
-            onDayflagChange={(event) => setDayflag(event.target.value)}
-            onTimezoneChange={(event) => setTimezone(event.target.value)}
-            onAreaChange={(event) => {
-              setSelectedArea(event.target.value);
-              setSelectedMeshIds([]);
-              setSelectedMeshColorSlots({});
-            }}
-            onShowStationsChange={() =>
-              setShowStations((current) => !current)
-            }
-            onShowCommercialFacilitiesChange={() =>
-              setShowCommercialFacilities((current) => !current)
-            }
-          />
-
-        </div>
-
-        <div className="panelSwitcher" aria-label="分析パネル切り替え">
-          <PlaceSearch
-            data={filteredData}
-            onSelect={(place) => {
-              if (place.type === "station") setShowStations(true);
-              if (place.type === "facility") setShowCommercialFacilities(true);
-              setPointFocusRequest((current) => ({
-                lat: place.lat,
-                lng: place.lng,
-                requestId: current.requestId + 1,
-              }));
-            }}
-          />
-          <button
-            type="button"
-            className={activePanel === "ranking" ? "active" : ""}
-            onClick={() =>
-              setActivePanel(activePanel === "ranking" ? null : "ranking")
-            }
-          >
-            ランキング
-          </button>
-        </div>
 
         {activePanel && (
           <div
@@ -313,7 +312,8 @@ function App() {
 
       <footer className="footer">
         「全国の人流オープンデータ」（国土交通省）および
-        「国土数値情報 駅別乗降客数データ」（国土交通省）を加工して作成
+        「国土数値情報 駅別乗降客数データ」（国土交通省）、
+        商業施設・背景地図 © OpenStreetMap contributors（ODbL）を加工して作成
       </footer>
     </div>
   );
