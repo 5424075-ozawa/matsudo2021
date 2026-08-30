@@ -640,8 +640,8 @@ body,
 
 .displayToggleButton.active,
 .displayToggleButton.active:hover {
-  border-color: #0f172a;
-  background: #0f172a;
+  border-color: #3b82f6;
+  background: #60a5fa;
   color: #fff;
 }
 
@@ -791,8 +791,8 @@ body,
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
   transform: none;
-  animation: comparisonDrawerIn 280ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition: height 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: comparisonDrawerIn 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: height 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .comparisonResizeHandle {

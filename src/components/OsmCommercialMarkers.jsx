@@ -98,7 +98,6 @@ function OsmCommercialMarkers({ data }) {
             {properties.buildingLevels && (
               <p>階数：{properties.buildingLevels}階</p>
             )}
-            {properties.phone && <p>電話：{properties.phone}</p>}
             {properties.website && (
               <a href={properties.website} target="_blank" rel="noreferrer">
                 施設サイト
