@@ -6,19 +6,17 @@ function ControlPanel({
   dayflag,
   timezone,
   selectedArea,
-  showMesh,
   showStations,
   onMonthChange,
   onDayflagChange,
   onTimezoneChange,
   onAreaChange,
-  onShowMeshChange,
   onShowStationsChange,
 }) {
   return (
     <section className="controls">
       <label>
-        対象営業区域：
+        交通圏：
         <select value={selectedArea} onChange={onAreaChange}>
           {Object.entries(serviceAreas).map(([key, area]) => (
             <option key={key} value={key}>
@@ -57,23 +55,14 @@ function ControlPanel({
         </select>
       </label>
 
-      <label className="checkboxLabel">
-        <input
-          type="checkbox"
-          checked={showMesh}
-          onChange={onShowMeshChange}
-        />
-        メッシュ表示
-      </label>
-
-      <label className="checkboxLabel">
-        <input
-          type="checkbox"
-          checked={showStations}
-          onChange={onShowStationsChange}
-        />
+      <button
+        type="button"
+        className={`displayToggleButton ${showStations ? "active" : ""}`}
+        aria-pressed={showStations}
+        onClick={onShowStationsChange}
+      >
         駅表示
-      </label>
+      </button>
     </section>
   );
 }

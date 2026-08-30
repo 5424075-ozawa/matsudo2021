@@ -14,6 +14,7 @@ import {
   dayflagLabels,
   timezoneLabels,
 } from "../utils/labels";
+import { selectionColors } from "../utils/selectionColors";
 
 const months = [
   { value: "01", label: "1月" },
@@ -160,12 +161,12 @@ function ChartTooltip({ active, payload, label }) {
       <strong>{label}</strong>
 
       {payload.map((item) => (
-        <p key={item.dataKey}>
+        <p key={item.dataKey} style={{ color: item.color }}>
           {item.name}：{formatNumber(item.value)}人
         </p>
       ))}
 
-      {payload.length >= 2 && (
+      {payload.length === 2 && (
         <p>
           差分：{formatDiff(firstValue - secondValue)}
         </p>
@@ -298,8 +299,49 @@ function ComparisonTable({
   );
 }
 
+function MultiMeshComparisonTable({ meshes, stats }) {
+  if (!stats?.length) return null;
+
+  const rows = [
+    ["最大", (item) => `${item.maxMonth}：${formatNumber(item.maxValue)}人`],
+    ["最小", (item) => `${item.minMonth}：${formatNumber(item.minValue)}人`],
+    ["平均", (item) => `${formatNumber(item.average)}人`],
+    ["最大月 - 最小月", (item) => formatDiff(item.diffMaxMin)],
+    ["12月 - 1月", (item) => formatDiff(item.diffDecJan)],
+  ];
+
+  return (
+    <div className="comparisonTableBox">
+      <h3 className="comparisonSubTitle">地点比較表</h3>
+      <table className="comparisonTable">
+        <thead>
+          <tr>
+            <th>項目</th>
+            {meshes.map((mesh) => (
+              <th key={mesh.id} style={{ color: mesh.color }}>
+                {mesh.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, formatter]) => (
+            <tr key={label}>
+              <td>{label}</td>
+              {stats.map((item, index) => (
+                <td key={meshes[index].id}>{formatter(item)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function MeshComparisonPanel({
   selectedMeshIds,
+  selectedMeshColorSlots,
   dayflag,
   timezone,
   getPlaceName,
@@ -310,27 +352,35 @@ function MeshComparisonPanel({
   const [monthlyData, setMonthlyData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [singleAnalysisMeshId, setSingleAnalysisMeshId] = useState(null);
+  const [hiddenMeshIds, setHiddenMeshIds] = useState([]);
+  const [singleComparisonMeshId, setSingleComparisonMeshId] = useState("");
 
-  const selectedFirstMeshId = selectedMeshIds[0];
-  const selectedSecondMeshId = selectedMeshIds[1];
-  const focusedMeshId = selectedMeshIds.includes(singleAnalysisMeshId)
-    ? singleAnalysisMeshId
-    : null;
-  const firstMeshId = focusedMeshId || selectedFirstMeshId;
-  const secondMeshId = focusedMeshId ? undefined : selectedSecondMeshId;
-
-  const firstMeshName = firstMeshId ? getPlaceName(firstMeshId) : "";
-  const secondMeshName = secondMeshId ? getPlaceName(secondMeshId) : "";
-  const selectedFirstMeshName = selectedFirstMeshId
-    ? getPlaceName(selectedFirstMeshId)
+  const comparisonMeshes = selectedMeshIds.map((id, index) => ({
+    id,
+    key: `mesh${index}`,
+    name: getPlaceName(id),
+    color: selectionColors[selectedMeshColorSlots[id] ?? index],
+  }));
+  const visibleComparisonMeshes = comparisonMeshes.filter(
+    (mesh) => !hiddenMeshIds.includes(mesh.id)
+  );
+  const directSingleMeshId = visibleComparisonMeshes.some(
+    (mesh) => mesh.id === singleComparisonMeshId
+  )
+    ? singleComparisonMeshId
     : "";
-  const selectedSecondMeshName = selectedSecondMeshId
-    ? getPlaceName(selectedSecondMeshId)
-    : "";
+  const firstMeshId = directSingleMeshId || selectedMeshIds[0];
 
-  const isSingleMode = selectedMeshIds.length === 1 || Boolean(focusedMeshId);
-  const isTwoMeshMode = selectedMeshIds.length === 2 && !focusedMeshId;
+  const isSingleMode =
+    selectedMeshIds.length === 1 || Boolean(directSingleMeshId);
+  const isMultiMeshMode =
+    selectedMeshIds.length >= 2 && !directSingleMeshId;
+
+  useEffect(() => {
+    setHiddenMeshIds((currentIds) =>
+      currentIds.filter((id) => selectedMeshIds.includes(id))
+    );
+  }, [selectedMeshIds]);
 
   useEffect(() => {
     if (selectedMeshIds.length === 0) {
@@ -402,29 +452,20 @@ function MeshComparisonPanel({
               };
             }
 
-            const firstTarget = rows.find(
-              (row) =>
-                row.mesh1kmid === firstMeshId &&
-                row.dayflag === dayflag &&
-                row.timezone === timezone
-            );
+            return selectedMeshIds.reduce((item, meshId, index) => {
+              const target = rows.find(
+                (row) =>
+                  row.mesh1kmid === meshId &&
+                  row.dayflag === dayflag &&
+                  row.timezone === timezone
+              );
 
-            const secondTarget = rows.find(
-              (row) =>
-                row.mesh1kmid === secondMeshId &&
-                row.dayflag === dayflag &&
-                row.timezone === timezone
-            );
-
-            const meshA = firstTarget ? firstTarget.population : 0;
-            const meshB = secondTarget ? secondTarget.population : 0;
-
-            return {
+              item[`mesh${index}`] = target ? target.population : 0;
+              return item;
+            }, {
               month: month.label,
               monthValue: month.value,
-              meshA,
-              meshB,
-            };
+            });
           })
         );
 
@@ -448,7 +489,6 @@ function MeshComparisonPanel({
   }, [
     selectedMeshIds,
     firstMeshId,
-    secondMeshId,
     dayflag,
     timezone,
     isSingleMode,
@@ -483,19 +523,52 @@ function MeshComparisonPanel({
       };
     }
 
-    const firstStats = createMeshStats(monthlyData, "meshA");
-    const secondStats = createMeshStats(monthlyData, "meshB");
-
     return {
-      firstStats,
-      secondStats,
-      twoMeshPairStats: createPairDiffStats(
-        monthlyData,
-        "meshA",
-        "meshB"
+      meshStats: visibleComparisonMeshes.map((mesh) =>
+        createMeshStats(monthlyData, mesh.key)
       ),
+      pairStats:
+        visibleComparisonMeshes.length === 2
+          ? createPairDiffStats(
+              monthlyData,
+              visibleComparisonMeshes[0].key,
+              visibleComparisonMeshes[1].key
+            )
+          : null,
     };
-  }, [monthlyData, isSingleMode]);
+  }, [monthlyData, isSingleMode, visibleComparisonMeshes]);
+
+  const comparisonYAxis = useMemo(() => {
+    const maxValue = Math.max(
+      0,
+      ...monthlyData.flatMap((item) =>
+        comparisonMeshes.map((mesh) => item[mesh.key] ?? 0)
+      )
+    );
+
+    if (maxValue === 0) {
+      return { max: 1, ticks: [0, 1] };
+    }
+
+    const roughStep = maxValue / 4;
+    const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+    const normalized = roughStep / magnitude;
+    let niceMultiplier;
+
+    if (normalized <= 1) niceMultiplier = 1;
+    else if (normalized <= 1.5) niceMultiplier = 1.5;
+    else if (normalized <= 2) niceMultiplier = 2;
+    else if (normalized <= 2.5) niceMultiplier = 2.5;
+    else if (normalized <= 5) niceMultiplier = 5;
+    else if (normalized <= 7.5) niceMultiplier = 7.5;
+    else niceMultiplier = 10;
+
+    const step = niceMultiplier * magnitude;
+    const max = step * 4;
+    const ticks = Array.from({ length: 5 }, (_, index) => index * step);
+
+    return { max, ticks };
+  }, [monthlyData, comparisonMeshes]);
 
   if (selectedMeshIds.length === 0) {
     return (
@@ -529,60 +602,72 @@ function MeshComparisonPanel({
             />
           </button>
 
-          <button type="button" onClick={onClear}>
-            選択解除
+          <button
+            type="button"
+            className="comparisonCloseButton"
+            onClick={onClear}
+            aria-label="メッシュ選択を解除して閉じる"
+            title="メッシュ選択を解除して閉じる"
+          >
+            <span aria-hidden="true">×</span>
           </button>
         </div>
       </div>
 
-      <div className="selectedMeshList">
-        {selectedFirstMeshId && (
-          <div>
-            <span>{selectedFirstMeshName}</span>
-            {selectedMeshIds.length === 2 && (
-              <button
-                type="button"
-                className={
-                  focusedMeshId === selectedFirstMeshId ? "active" : ""
-                }
-                onClick={() =>
-                  setSingleAnalysisMeshId(
-                    focusedMeshId === selectedFirstMeshId
-                      ? null
-                      : selectedFirstMeshId
-                  )
-                }
-              >
-                {focusedMeshId === selectedFirstMeshId
-                  ? "1地点分析を解除"
-                  : "この地点を1地点分析"}
-              </button>
-            )}
-          </div>
-        )}
+      <label className="singleComparisonControl">
+        <span>1地点比較</span>
+        <select
+          value={directSingleMeshId}
+          style={{
+            color:
+              comparisonMeshes.find((mesh) => mesh.id === directSingleMeshId)
+                ?.color || undefined,
+          }}
+          onChange={(event) => {
+            const meshId = event.target.value;
+            setSingleComparisonMeshId(meshId);
+            if (meshId) {
+              setHiddenMeshIds((currentIds) =>
+                currentIds.filter((id) => id !== meshId)
+              );
+            }
+          }}
+        >
+          <option value="">オフ</option>
+          {comparisonMeshes.map((mesh) => (
+            <option key={mesh.id} value={mesh.id}>
+              {mesh.name}
+            </option>
+          ))}
+        </select>
+      </label>
 
-        {selectedSecondMeshId && (
-          <div>
-            <span>{selectedSecondMeshName}</span>
+      <div className="selectedMeshList">
+        {comparisonMeshes.map((mesh) => (
+          <div
+            key={mesh.id}
+            className={hiddenMeshIds.includes(mesh.id) ? "hiddenMesh" : ""}
+            style={{ "--mesh-color": mesh.color }}
+          >
+            <span>{mesh.name}</span>
             <button
               type="button"
-              className={
-                focusedMeshId === selectedSecondMeshId ? "active" : ""
-              }
-              onClick={() =>
-                setSingleAnalysisMeshId(
-                  focusedMeshId === selectedSecondMeshId
-                    ? null
-                    : selectedSecondMeshId
-                )
-              }
+              className={hiddenMeshIds.includes(mesh.id) ? "active" : ""}
+              onClick={() => {
+                if (directSingleMeshId === mesh.id) {
+                  setSingleComparisonMeshId("");
+                }
+                setHiddenMeshIds((currentIds) =>
+                  currentIds.includes(mesh.id)
+                    ? currentIds.filter((id) => id !== mesh.id)
+                    : [...currentIds, mesh.id]
+                );
+              }}
             >
-              {focusedMeshId === selectedSecondMeshId
-                ? "1地点分析を解除"
-                : "この地点を1地点分析"}
+              {hiddenMeshIds.includes(mesh.id) ? "表示" : "非表示"}
             </button>
           </div>
-        )}
+        ))}
       </div>
 
       {isSingleMode && (
@@ -591,9 +676,9 @@ function MeshComparisonPanel({
         </p>
       )}
 
-      {isTwoMeshMode && (
+      {isMultiMeshMode && (
         <p className="comparisonCondition">
-          2地点比較条件：
+          {selectedMeshIds.length}地点比較条件：
           {dayflagLabels[dayflag]} / {timezoneLabels[timezone]}
         </p>
       )}
@@ -607,6 +692,12 @@ function MeshComparisonPanel({
       {loading && <p>月別データを読み込み中...</p>}
 
       {error && <p className="error">{error}</p>}
+
+      {selectedMeshIds.length >= 2 && visibleComparisonMeshes.length === 0 && (
+        <p className="comparisonNote">
+          すべての地点が一時的に非表示です。
+        </p>
+      )}
 
       {!loading && monthlyData.length > 0 && isSingleMode && stats && (
         <>
@@ -698,47 +789,45 @@ function MeshComparisonPanel({
         </>
       )}
 
-      {!loading && monthlyData.length > 0 && isTwoMeshMode && stats && (
+      {!loading &&
+        monthlyData.length > 0 &&
+        isMultiMeshMode &&
+        visibleComparisonMeshes.length > 0 &&
+        stats && (
         <>
           <div className="lineChartBox">
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis tickFormatter={(value) => value.toLocaleString()} />
+                <YAxis
+                  domain={[0, comparisonYAxis.max]}
+                  ticks={comparisonYAxis.ticks}
+                  allowDecimals={false}
+                  tickFormatter={(value) => value.toLocaleString()}
+                />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend />
 
-                <Line
-                  type="linear"
-                  dataKey="meshA"
-                  name={firstMeshName}
-                  stroke="#2563eb"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 7 }}
-                />
-
-                <Line
-                  type="linear"
-                  dataKey="meshB"
-                  name={secondMeshName}
-                  stroke="#dc2626"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 7 }}
-                />
+                {visibleComparisonMeshes.map((mesh) => (
+                  <Line
+                    key={mesh.id}
+                    type="linear"
+                    dataKey={mesh.key}
+                    name={mesh.name}
+                    stroke={mesh.color}
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 7 }}
+                  />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          <ComparisonTable
-            title="2地点比較表"
-            firstName={firstMeshName}
-            secondName={secondMeshName}
-            firstStats={stats.firstStats}
-            secondStats={stats.secondStats}
-            pairStats={stats.twoMeshPairStats}
+          <MultiMeshComparisonTable
+            meshes={visibleComparisonMeshes}
+            stats={stats.meshStats}
           />
         </>
       )}

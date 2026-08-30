@@ -17,13 +17,13 @@ function App() {
   const [timezone, setTimezone] = useState("0");
   const [selectedArea, setSelectedArea] = useState("tokatsu");
 
-  const [showMesh, setShowMesh] = useState(true);
   const [showStations, setShowStations] = useState(true);
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
   const [comparisonHeight, setComparisonHeight] = useState(75);
 
   const [selectedMeshIds, setSelectedMeshIds] = useState([]);
+  const [selectedMeshColorSlots, setSelectedMeshColorSlots] = useState({});
 
   const {
     data: allData,
@@ -77,10 +77,25 @@ function App() {
 
       if (currentIds.includes(meshId)) {
         nextIds = currentIds.filter((id) => id !== meshId);
-      } else if (currentIds.length >= 2) {
-        nextIds = [currentIds[1], meshId];
+        setSelectedMeshColorSlots((currentSlots) => {
+          const nextSlots = { ...currentSlots };
+          delete nextSlots[meshId];
+          return nextSlots;
+        });
+      } else if (currentIds.length >= 5) {
+        nextIds = currentIds;
       } else {
         nextIds = [...currentIds, meshId];
+        setSelectedMeshColorSlots((currentSlots) => {
+          const usedSlots = new Set(
+            currentIds.map((id) => currentSlots[id]).filter(Number.isInteger)
+          );
+          const availableSlot = [0, 1, 2, 3, 4].find(
+            (slot) => !usedSlots.has(slot)
+          );
+
+          return { ...currentSlots, [meshId]: availableSlot };
+        });
       }
 
       setActivePanel(nextIds.length > 0 ? "comparison" : null);
@@ -91,6 +106,7 @@ function App() {
 
   function clearSelectedMeshes() {
     setSelectedMeshIds([]);
+    setSelectedMeshColorSlots({});
     setActivePanel(null);
     setComparisonMinimized(false);
   }
@@ -113,9 +129,9 @@ function App() {
           fitArea={loadedArea}
           maxPopulation={statistics.maxPopulation}
           getPlaceName={getPlaceName}
-          showMesh={showMesh}
           showStations={showStations}
           selectedMeshIds={selectedMeshIds}
+          selectedMeshColorSlots={selectedMeshColorSlots}
           onMeshSelect={handleMeshSelect}
           onMapInteraction={() => {
             if (activePanel === "comparison") {
@@ -132,7 +148,6 @@ function App() {
             dayflag={dayflag}
             timezone={timezone}
             selectedArea={selectedArea}
-            showMesh={showMesh}
             showStations={showStations}
             onMonthChange={(event) => setMonth(event.target.value)}
             onDayflagChange={(event) => setDayflag(event.target.value)}
@@ -140,12 +155,13 @@ function App() {
             onAreaChange={(event) => {
               setSelectedArea(event.target.value);
               setSelectedMeshIds([]);
+              setSelectedMeshColorSlots({});
             }}
-            onShowMeshChange={(event) => setShowMesh(event.target.checked)}
-            onShowStationsChange={(event) =>
-              setShowStations(event.target.checked)
+            onShowStationsChange={() =>
+              setShowStations((current) => !current)
             }
           />
+
         </div>
 
         <div className="panelSwitcher" aria-label="分析パネル切り替え">
@@ -212,6 +228,7 @@ function App() {
             {activePanel === "comparison" && (
               <MeshComparisonPanel
                 selectedMeshIds={selectedMeshIds}
+                selectedMeshColorSlots={selectedMeshColorSlots}
                 dayflag={dayflag}
                 timezone={timezone}
                 getPlaceName={getPlaceName}

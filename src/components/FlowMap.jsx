@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import {
   MapContainer,
   Popup,
@@ -13,10 +13,9 @@ import StationMarkers from "./StationMarkers";
 
 import { mesh1kmToBounds } from "../utils/mesh";
 import { getColor } from "../utils/color";
+import { selectionColors } from "../utils/selectionColors";
 
 import { dayflagLabels, timezoneLabels } from "../utils/labels";
-
-const selectedColors = ["#2563eb", "#dc2626"];
 
 function MapInteractionHandler({ onInteraction }) {
   useMapEvents({
@@ -25,6 +24,16 @@ function MapInteractionHandler({ onInteraction }) {
   });
 
   return null;
+}
+
+function insetBounds([[south, west], [north, east]]) {
+  const latitudeInset = (north - south) * 0.012;
+  const longitudeInset = (east - west) * 0.012;
+
+  return [
+    [south + latitudeInset, west + longitudeInset],
+    [north - latitudeInset, east - longitudeInset],
+  ];
 }
 
 function MapAreaFit({ data, area }) {
@@ -58,9 +67,9 @@ function FlowMap({
   fitArea,
   maxPopulation,
   getPlaceName,
-  showMesh,
   showStations,
   selectedMeshIds,
+  selectedMeshColorSlots,
   onMeshSelect,
   onMapInteraction,
 }) {
@@ -82,11 +91,13 @@ function FlowMap({
         <MapAreaFit data={data} area={fitArea} />
         <MapInteractionHandler onInteraction={onMapInteraction} />
 
-        {showMesh &&
-          data.map((item) => {
+        {data.map((item) => {
             const selectedIndex = selectedMeshIds.indexOf(item.mesh1kmid);
             const isSelected = selectedIndex !== -1;
-            const selectedColor = selectedColors[selectedIndex];
+            const selectedColor =
+              selectionColors[
+                selectedMeshColorSlots[item.mesh1kmid] ?? selectedIndex
+              ];
 
             return (
               <Rectangle
@@ -117,7 +128,7 @@ function FlowMap({
                 </Popup>
               </Rectangle>
             );
-          })}
+        })}
 
         {showStations && <StationMarkers data={data} />}
       </MapContainer>
