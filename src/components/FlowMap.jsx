@@ -106,8 +106,6 @@ function FlowMap({
                   <div>
                     <strong>{getPlaceName(item.mesh1kmid)}</strong>
                     <br />
-                    メッシュID：{item.mesh1kmid}
-                    <br />
                     滞在人口：{item.population.toLocaleString()}人
                     <br />
                     年月：{item.year}年{Number(item.month)}月

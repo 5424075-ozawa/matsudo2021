@@ -9,8 +9,6 @@ function RankingPanel({ ranking, getPlaceName }) {
             <strong>{index + 1}位</strong>
 
             <p>{getPlaceName(item.mesh1kmid)}</p>
-
-            <p>メッシュID：{item.mesh1kmid}</p>
           </div>
 
           <span>{item.population.toLocaleString()}人</span>

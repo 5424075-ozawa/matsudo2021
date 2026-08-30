@@ -539,7 +539,6 @@ function MeshComparisonPanel({
         {selectedFirstMeshId && (
           <div>
             <span>{selectedFirstMeshName}</span>
-            <small>メッシュID：{selectedFirstMeshId}</small>
             {selectedMeshIds.length === 2 && (
               <button
                 type="button"
@@ -565,7 +564,6 @@ function MeshComparisonPanel({
         {selectedSecondMeshId && (
           <div>
             <span>{selectedSecondMeshName}</span>
-            <small>メッシュID：{selectedSecondMeshId}</small>
             <button
               type="button"
               className={
