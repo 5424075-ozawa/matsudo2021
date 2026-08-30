@@ -23,6 +23,7 @@ function App() {
 
   const {
     data: allData,
+    loadedArea,
     loading,
     error,
   } = useFlowData(month, selectedArea);
@@ -126,6 +127,7 @@ function App() {
         <div className="mapColumn">
           <FlowMap
             data={filteredData}
+            fitArea={loadedArea}
             maxPopulation={statistics.maxPopulation}
             getPlaceName={getPlaceName}
             showMesh={showMesh}

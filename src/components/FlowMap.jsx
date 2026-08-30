@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   MapContainer,
   Popup,
@@ -17,11 +17,12 @@ import { dayflagLabels, timezoneLabels } from "../utils/labels";
 
 const selectedColors = ["#2563eb", "#dc2626"];
 
-function MapAutoFit({ data }) {
+function MapAreaFit({ data, area }) {
   const map = useMap();
+  const fittedArea = useRef(null);
 
   useEffect(() => {
-    if (data.length === 0) return;
+    if (!area || fittedArea.current === area || data.length === 0) return;
 
     const bounds = latLngBounds([]);
 
@@ -35,13 +36,16 @@ function MapAutoFit({ data }) {
       padding: [30, 30],
       maxZoom: 13,
     });
-  }, [data, map]);
+
+    fittedArea.current = area;
+  }, [area, data, map]);
 
   return null;
 }
 
 function FlowMap({
   data,
+  fitArea,
   maxPopulation,
   getPlaceName,
   showMesh,
@@ -64,7 +68,7 @@ function FlowMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <MapAutoFit data={data} />
+        <MapAreaFit data={data} area={fitArea} />
 
         {showMesh &&
           data.map((item) => {

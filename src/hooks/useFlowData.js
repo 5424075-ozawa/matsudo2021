@@ -3,6 +3,7 @@ import { serviceAreas } from "../utils/serviceAreas";
 
 export function useFlowData(month, selectedArea) {
   const [data, setData] = useState([]);
+  const [loadedArea, setLoadedArea] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -58,10 +59,12 @@ export function useFlowData(month, selectedArea) {
               );
 
         setData(filteredData);
+        setLoadedArea(selectedArea);
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error(err);
           setData([]);
+          setLoadedArea(null);
           setError("人流データの読み込みに失敗しました。");
         }
       } finally {
@@ -78,6 +81,7 @@ export function useFlowData(month, selectedArea) {
 
   return {
     data,
+    loadedArea,
     loading,
     error,
   };
