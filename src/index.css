@@ -241,6 +241,34 @@ body,
   background: #d1d5db;
 }
 
+.comparisonHeaderActions {
+  display: flex;
+  gap: 8px;
+}
+
+.comparisonHeader .drawerToggleButton {
+  display: grid;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  place-items: center;
+}
+
+.drawerToggleIcon {
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+}
+
+.drawerToggleIcon.down {
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.drawerToggleIcon.up {
+  transform: translateY(2px) rotate(225deg);
+}
+
 .selectedMeshList {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -266,6 +294,26 @@ body,
 .selectedMeshList small {
   color: #777;
   font-size: 12px;
+}
+
+.selectedMeshList button {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.selectedMeshList button:hover,
+.selectedMeshList button.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .comparisonCondition {
@@ -377,7 +425,6 @@ body,
 .mapStage {
   position: relative;
   height: calc(100vh - 48px);
-  min-height: 680px;
   overflow: hidden;
 }
 
@@ -392,10 +439,14 @@ body,
   height: 100%;
 }
 
+.leaflet-top.leaflet-left {
+  top: 286px;
+}
+
 .mapTopLeft {
   position: absolute;
   z-index: 800;
-  top: 20px;
+  top: 14px;
   left: 20px;
   width: min(720px, calc(100% - 420px));
   pointer-events: none;
@@ -452,7 +503,7 @@ body,
 .panelSwitcher {
   position: absolute;
   z-index: 900;
-  top: 20px;
+  top: 104px;
   right: 20px;
   display: flex;
   gap: 6px;
@@ -483,12 +534,49 @@ body,
 .mapAnalysisPanel {
   position: absolute;
   z-index: 850;
-  top: 72px;
+  top: 156px;
   right: 20px;
   width: min(400px, calc(100% - 40px));
   max-height: calc(100% - 190px);
   overflow: auto;
   border-radius: 14px;
+}
+
+.mapAnalysisPanel.comparisonDrawer {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 75%;
+  max-height: none;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  transform: none;
+  animation: comparisonDrawerIn 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: height 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mapAnalysisPanel.comparisonDrawer.minimized {
+  height: 58px;
+  overflow: hidden;
+}
+
+.comparisonDrawer.minimized .comparisonPanel > :not(.comparisonHeader) {
+  display: none;
+}
+
+@keyframes comparisonDrawerIn {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mapAnalysisPanel .sidePanel,
@@ -505,6 +593,31 @@ body,
 
 .mapAnalysisPanel .comparisonPanel {
   padding: 16px;
+}
+
+@media (min-width: 901px) {
+  .comparisonDrawer .comparisonPanel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 24px;
+    align-items: start;
+  }
+
+  .comparisonDrawer .comparisonHeader,
+  .comparisonDrawer .selectedMeshList,
+  .comparisonDrawer .comparisonCondition,
+  .comparisonDrawer .comparisonNote,
+  .comparisonDrawer .comparisonSubTitle,
+  .comparisonDrawer .error,
+  .comparisonDrawer .comparisonPanel > p:not(.comparisonCondition):not(.comparisonNote) {
+    grid-column: 1 / -1;
+  }
+
+  .comparisonDrawer .lineChartBox,
+  .comparisonDrawer .comparisonTableBox {
+    min-width: 0;
+    margin-top: 8px;
+  }
 }
 
 .mapLegend {
@@ -538,8 +651,9 @@ body,
   position: absolute;
   z-index: 800;
   right: 20px;
-  bottom: 18px;
-  left: 20px;
+  top: 14px;
+  bottom: auto;
+  left: calc(min(720px, calc(100% - 420px)) + 40px);
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -580,7 +694,7 @@ body,
 .mapMessage {
   position: absolute;
   z-index: 1000;
-  top: 172px;
+  top: 256px;
   left: 20px;
   margin: 0;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
@@ -598,13 +712,16 @@ body,
 @media (max-width: 900px) {
   .mapStage {
     height: calc(100vh - 64px);
-    min-height: 640px;
   }
 
   .mapTopLeft {
-    top: 10px;
+    top: 96px;
     left: 10px;
     width: calc(100% - 20px);
+  }
+
+  .leaflet-top.leaflet-left {
+    top: 306px;
   }
 
   .header p {
@@ -616,21 +733,43 @@ body,
   }
 
   .panelSwitcher {
-    top: 180px;
+    top: 266px;
     right: 10px;
   }
 
   .mapAnalysisPanel {
-    top: 228px;
+    top: 314px;
     right: 10px;
     width: min(380px, calc(100% - 20px));
     max-height: calc(100% - 340px);
   }
 
+  .mapAnalysisPanel.comparisonDrawer {
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 75%;
+    max-height: none;
+    transform: none;
+  }
+
+  @keyframes comparisonDrawerIn {
+    from {
+      opacity: 0;
+      transform: translateY(36px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .mapSummary {
     right: 10px;
-    bottom: 10px;
-    left: 10px;
+    top: 10px;
+    bottom: auto;
+    left: 58px;
     overflow-x: auto;
     justify-content: flex-start;
   }

@@ -20,6 +20,7 @@ function App() {
   const [showMesh, setShowMesh] = useState(true);
   const [showStations, setShowStations] = useState(true);
   const [activePanel, setActivePanel] = useState("ranking");
+  const [comparisonMinimized, setComparisonMinimized] = useState(false);
 
   const [selectedMeshIds, setSelectedMeshIds] = useState([]);
 
@@ -71,20 +72,26 @@ function App() {
 
   function handleMeshSelect(meshId) {
     setSelectedMeshIds((currentIds) => {
+      let nextIds;
+
       if (currentIds.includes(meshId)) {
-        return currentIds.filter((id) => id !== meshId);
+        nextIds = currentIds.filter((id) => id !== meshId);
+      } else if (currentIds.length >= 2) {
+        nextIds = [currentIds[1], meshId];
+      } else {
+        nextIds = [...currentIds, meshId];
       }
 
-      if (currentIds.length >= 2) {
-        return [currentIds[1], meshId];
-      }
-
-      return [...currentIds, meshId];
+      setActivePanel(nextIds.length > 0 ? "comparison" : null);
+      setComparisonMinimized(false);
+      return nextIds;
     });
   }
 
   function clearSelectedMeshes() {
     setSelectedMeshIds([]);
+    setActivePanel(null);
+    setComparisonMinimized(false);
   }
 
   return (
@@ -139,9 +146,11 @@ function App() {
             type="button"
             className={activePanel === "comparison" ? "active" : ""}
             onClick={() =>
-              setActivePanel(
-                activePanel === "comparison" ? null : "comparison"
-              )
+              setActivePanel((currentPanel) => {
+                if (currentPanel === "comparison") return null;
+                setComparisonMinimized(false);
+                return "comparison";
+              })
             }
           >
             メッシュ分析
@@ -149,7 +158,11 @@ function App() {
         </div>
 
         {activePanel && (
-          <div className="mapAnalysisPanel">
+          <div
+            className={`mapAnalysisPanel ${
+              activePanel === "comparison" ? "comparisonDrawer" : ""
+            } ${comparisonMinimized ? "minimized" : ""}`}
+          >
             {activePanel === "ranking" && (
               <RankingPanel
                 ranking={ranking}
@@ -163,6 +176,10 @@ function App() {
                 timezone={timezone}
                 getPlaceName={getPlaceName}
                 onClear={clearSelectedMeshes}
+                isMinimized={comparisonMinimized}
+                onToggleMinimize={() =>
+                  setComparisonMinimized((current) => !current)
+                }
               />
             )}
           </div>

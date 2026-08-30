@@ -304,19 +304,33 @@ function MeshComparisonPanel({
   timezone,
   getPlaceName,
   onClear,
+  isMinimized,
+  onToggleMinimize,
 }) {
   const [monthlyData, setMonthlyData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [singleAnalysisMeshId, setSingleAnalysisMeshId] = useState(null);
 
-  const firstMeshId = selectedMeshIds[0];
-  const secondMeshId = selectedMeshIds[1];
+  const selectedFirstMeshId = selectedMeshIds[0];
+  const selectedSecondMeshId = selectedMeshIds[1];
+  const focusedMeshId = selectedMeshIds.includes(singleAnalysisMeshId)
+    ? singleAnalysisMeshId
+    : null;
+  const firstMeshId = focusedMeshId || selectedFirstMeshId;
+  const secondMeshId = focusedMeshId ? undefined : selectedSecondMeshId;
 
   const firstMeshName = firstMeshId ? getPlaceName(firstMeshId) : "";
   const secondMeshName = secondMeshId ? getPlaceName(secondMeshId) : "";
+  const selectedFirstMeshName = selectedFirstMeshId
+    ? getPlaceName(selectedFirstMeshId)
+    : "";
+  const selectedSecondMeshName = selectedSecondMeshId
+    ? getPlaceName(selectedSecondMeshId)
+    : "";
 
-  const isSingleMode = selectedMeshIds.length === 1;
-  const isTwoMeshMode = selectedMeshIds.length === 2;
+  const isSingleMode = selectedMeshIds.length === 1 || Boolean(focusedMeshId);
+  const isTwoMeshMode = selectedMeshIds.length === 2 && !focusedMeshId;
 
   useEffect(() => {
     if (selectedMeshIds.length === 0) {
@@ -501,23 +515,74 @@ function MeshComparisonPanel({
       <div className="comparisonHeader">
         <h2>メッシュ比較</h2>
 
-        <button type="button" onClick={onClear}>
-          選択解除
-        </button>
+        <div className="comparisonHeaderActions">
+          <button
+            type="button"
+            className="drawerToggleButton"
+            onClick={onToggleMinimize}
+            aria-label={isMinimized ? "分析パネルを開く" : "分析パネルを縮小"}
+            title={isMinimized ? "分析パネルを開く" : "分析パネルを縮小"}
+          >
+            <span
+              className={`drawerToggleIcon ${isMinimized ? "up" : "down"}`}
+              aria-hidden="true"
+            />
+          </button>
+
+          <button type="button" onClick={onClear}>
+            選択解除
+          </button>
+        </div>
       </div>
 
       <div className="selectedMeshList">
-        {firstMeshId && (
+        {selectedFirstMeshId && (
           <div>
-            <span>{firstMeshName}</span>
-            <small>メッシュID：{firstMeshId}</small>
+            <span>{selectedFirstMeshName}</span>
+            <small>メッシュID：{selectedFirstMeshId}</small>
+            {selectedMeshIds.length === 2 && (
+              <button
+                type="button"
+                className={
+                  focusedMeshId === selectedFirstMeshId ? "active" : ""
+                }
+                onClick={() =>
+                  setSingleAnalysisMeshId(
+                    focusedMeshId === selectedFirstMeshId
+                      ? null
+                      : selectedFirstMeshId
+                  )
+                }
+              >
+                {focusedMeshId === selectedFirstMeshId
+                  ? "1地点分析を解除"
+                  : "この地点を1地点分析"}
+              </button>
+            )}
           </div>
         )}
 
-        {secondMeshId && (
+        {selectedSecondMeshId && (
           <div>
-            <span>{secondMeshName}</span>
-            <small>メッシュID：{secondMeshId}</small>
+            <span>{selectedSecondMeshName}</span>
+            <small>メッシュID：{selectedSecondMeshId}</small>
+            <button
+              type="button"
+              className={
+                focusedMeshId === selectedSecondMeshId ? "active" : ""
+              }
+              onClick={() =>
+                setSingleAnalysisMeshId(
+                  focusedMeshId === selectedSecondMeshId
+                    ? null
+                    : selectedSecondMeshId
+                )
+              }
+            >
+              {focusedMeshId === selectedSecondMeshId
+                ? "1地点分析を解除"
+                : "この地点を1地点分析"}
+            </button>
           </div>
         )}
       </div>
@@ -535,7 +600,7 @@ function MeshComparisonPanel({
         </p>
       )}
 
-      {isSingleMode && (
+      {isSingleMode && selectedMeshIds.length === 1 && (
         <p className="comparisonNote">
           もう1つメッシュをクリックすると、2地点比較に切り替わります。
         </p>
@@ -559,7 +624,7 @@ function MeshComparisonPanel({
                 <Legend />
 
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="daytime"
                   name="昼間"
                   stroke="#2563eb"
@@ -569,7 +634,7 @@ function MeshComparisonPanel({
                 />
 
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="nighttime"
                   name="夜間"
                   stroke="#dc2626"
@@ -602,7 +667,7 @@ function MeshComparisonPanel({
                 <Legend />
 
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="weekday"
                   name="平日"
                   stroke="#2563eb"
@@ -612,7 +677,7 @@ function MeshComparisonPanel({
                 />
 
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="holiday"
                   name="休日"
                   stroke="#dc2626"
@@ -647,7 +712,7 @@ function MeshComparisonPanel({
                 <Legend />
 
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="meshA"
                   name={firstMeshName}
                   stroke="#2563eb"
@@ -657,7 +722,7 @@ function MeshComparisonPanel({
                 />
 
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey="meshB"
                   name={secondMeshName}
                   stroke="#dc2626"
