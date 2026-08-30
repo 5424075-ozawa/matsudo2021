@@ -21,6 +21,7 @@ function App() {
   const [showStations, setShowStations] = useState(true);
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
+  const [comparisonHeight, setComparisonHeight] = useState(75);
 
   const [selectedMeshIds, setSelectedMeshIds] = useState([]);
 
@@ -94,6 +95,16 @@ function App() {
     setComparisonMinimized(false);
   }
 
+  function resizeComparisonDrawer(event) {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+
+    const mapStage = event.currentTarget.closest(".mapStage");
+    const bounds = mapStage.getBoundingClientRect();
+    const nextHeight = ((bounds.bottom - event.clientY) / bounds.height) * 100;
+
+    setComparisonHeight(Math.min(90, Math.max(20, nextHeight)));
+  }
+
   return (
     <div className="page">
       <main className="mapStage">
@@ -106,6 +117,11 @@ function App() {
           showStations={showStations}
           selectedMeshIds={selectedMeshIds}
           onMeshSelect={handleMeshSelect}
+          onMapInteraction={() => {
+            if (activePanel === "comparison") {
+              setComparisonMinimized(true);
+            }
+          }}
         />
 
         <div className="mapTopLeft">
@@ -162,7 +178,31 @@ function App() {
             className={`mapAnalysisPanel ${
               activePanel === "comparison" ? "comparisonDrawer" : ""
             } ${comparisonMinimized ? "minimized" : ""}`}
+            style={{ "--comparison-height": `${comparisonHeight}%` }}
           >
+            {activePanel === "comparison" && !comparisonMinimized && (
+              <div
+                className="comparisonResizeHandle"
+                role="separator"
+                aria-label="比較パネルの高さを変更"
+                aria-orientation="horizontal"
+                tabIndex="0"
+                onPointerDown={(event) => {
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                }}
+                onPointerMove={resizeComparisonDrawer}
+                onKeyDown={(event) => {
+                  if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    setComparisonHeight((height) => Math.min(90, height + 5));
+                  }
+                  if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    setComparisonHeight((height) => Math.max(20, height - 5));
+                  }
+                }}
+              />
+            )}
             {activePanel === "ranking" && (
               <RankingPanel
                 ranking={ranking}

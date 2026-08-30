@@ -5,6 +5,7 @@ import {
   Rectangle,
   TileLayer,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import { latLngBounds } from "leaflet";
 
@@ -16,6 +17,15 @@ import { getColor } from "../utils/color";
 import { dayflagLabels, timezoneLabels } from "../utils/labels";
 
 const selectedColors = ["#2563eb", "#dc2626"];
+
+function MapInteractionHandler({ onInteraction }) {
+  useMapEvents({
+    dragstart: onInteraction,
+    zoomstart: onInteraction,
+  });
+
+  return null;
+}
 
 function MapAreaFit({ data, area }) {
   const map = useMap();
@@ -52,6 +62,7 @@ function FlowMap({
   showStations,
   selectedMeshIds,
   onMeshSelect,
+  onMapInteraction,
 }) {
   return (
     <div className="mapArea">
@@ -69,6 +80,7 @@ function FlowMap({
         />
 
         <MapAreaFit data={data} area={fitArea} />
+        <MapInteractionHandler onInteraction={onMapInteraction} />
 
         {showMesh &&
           data.map((item) => {
