@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { divIcon } from "leaflet";
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Pane, Popup } from "react-leaflet";
 
 import { mesh1kmToBounds } from "../utils/mesh";
 
@@ -70,45 +70,53 @@ function OsmCommercialMarkers({ data }) {
     );
   }, [data, facilities]);
 
-  return visibleFacilities.map((facility) => {
-    const properties = facility.properties;
-    const [lng, lat] = properties.center;
+  return (
+    <Pane
+      name="commercialMarkersPane"
+      className="mapMarkerPane"
+      style={{ zIndex: 650 }}
+    >
+      {visibleFacilities.map((facility) => {
+        const properties = facility.properties;
+        const [lng, lat] = properties.center;
 
-    return (
-      <Marker
-        key={facility.id}
-        position={[lat, lng]}
-        icon={getCommercialIcon(properties.areaSqm)}
-        zIndexOffset={500}
-      >
-        <Popup>
-          <div className="facilityPopup">
-            <strong>{properties.name}</strong>
-            <span>商業施設</span>
-            {properties.brand && <p>ブランド：{properties.brand}</p>}
-            {properties.address && <p>住所：{properties.address}</p>}
-            {properties.openingHours && (
-              <p>営業時間：{properties.openingHours}</p>
-            )}
-            {properties.areaSqm && (
-              <p>建物・敷地面積：約{properties.areaSqm.toLocaleString()}㎡</p>
-            )}
-            {!properties.areaSqm && <p>建物・敷地面積：不明</p>}
-            <p>規模：{getFacilityScale(properties.areaSqm).label}</p>
-            {properties.buildingLevels && (
-              <p>階数：{properties.buildingLevels}階</p>
-            )}
-            {properties.website && (
-              <a href={properties.website} target="_blank" rel="noreferrer">
-                施設サイト
-              </a>
-            )}
-            <small>© OpenStreetMap contributors</small>
-          </div>
-        </Popup>
-      </Marker>
-    );
-  });
+        return (
+          <Marker
+            key={facility.id}
+            position={[lat, lng]}
+            icon={getCommercialIcon(properties.areaSqm)}
+            pane="commercialMarkersPane"
+          >
+            <Popup pane="popupPane">
+              <div className="facilityPopup">
+                <strong>{properties.name}</strong>
+                <span>商業施設</span>
+                {properties.brand && <p>ブランド：{properties.brand}</p>}
+                {properties.address && <p>住所：{properties.address}</p>}
+                {properties.openingHours && (
+                  <p>営業時間：{properties.openingHours}</p>
+                )}
+                {properties.areaSqm && (
+                  <p>建物・敷地面積：約{properties.areaSqm.toLocaleString()}㎡</p>
+                )}
+                {!properties.areaSqm && <p>建物・敷地面積：不明</p>}
+                <p>規模：{getFacilityScale(properties.areaSqm).label}</p>
+                {properties.buildingLevels && (
+                  <p>階数：{properties.buildingLevels}階</p>
+                )}
+                {properties.website && (
+                  <a href={properties.website} target="_blank" rel="noreferrer">
+                    施設サイト
+                  </a>
+                )}
+                <small>© OpenStreetMap contributors</small>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+    </Pane>
+  );
 }
 
 export default OsmCommercialMarkers;

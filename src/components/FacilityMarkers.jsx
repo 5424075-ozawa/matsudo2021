@@ -57,7 +57,7 @@ function FacilityMarkers({ data }) {
       icon={facilityIcon}
       zIndexOffset={500}
     >
-      <Popup>
+      <Popup pane="popupPane">
         <div className="facilityPopup">
           <strong>{facility.name}</strong>
           <span>{facility.type}</span>

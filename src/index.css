@@ -523,8 +523,17 @@ body,
   height: 100%;
 }
 
+.leaflet-popup-pane {
+  z-index: 1000;
+}
+
 .leaflet-top.leaflet-left {
-  top: 286px;
+  top: auto;
+  bottom: calc(72px + var(--legend-height, 0px) + 12px);
+}
+
+.mapStage.comparisonActive .leaflet-top.leaflet-left {
+  z-index: 800;
 }
 
 .mapTopLeft {
@@ -532,7 +541,7 @@ body,
   z-index: 800;
   top: 14px;
   left: 20px;
-  width: min(720px, calc(100% - 420px));
+  width: min(600px, calc(100% - 400px));
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 14px;
@@ -562,7 +571,7 @@ body,
 .mapTopLeft .header {
   display: block;
   margin: 0;
-  padding: 12px 16px 10px;
+  padding: 10px 14px 8px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -571,13 +580,13 @@ body,
 }
 
 .header h1 {
-  font-size: clamp(20px, 2vw, 28px);
+  font-size: clamp(18px, 1.8vw, 25px);
   letter-spacing: -0.02em;
 }
 
 .header p {
   margin: 4px 0 0;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .controls {
@@ -590,8 +599,8 @@ body,
 
 .mapTopLeft .controls {
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 10px 12px;
+  gap: 7px;
+  padding: 8px 9px 10px;
   border: 0;
   border-top: 1px solid #e2e8f0;
   border-radius: 0;
@@ -611,24 +620,24 @@ body,
 .mapTopLeft .controls label {
   display: flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .mapTopLeft .controls select {
   margin-left: 3px;
-  padding: 4px 5px;
-  font-size: 11px;
+  padding: 3px 5px;
+  font-size: 10px;
 }
 
 .displayToggleButton {
-  padding: 5px 8px;
+  padding: 4px 7px;
   border: 1px solid #cbd5e1;
   border-radius: 7px;
   background: #fff;
   color: #475569;
   cursor: pointer;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -648,6 +657,10 @@ body,
 .facilityMarkerWrapper {
   background: transparent;
   border: 0;
+}
+
+.mapMarkerPane {
+  transition: opacity 320ms ease-in-out;
 }
 
 .facilityMarkerPin {
@@ -740,7 +753,7 @@ body,
 .panelSwitcher {
   position: absolute;
   z-index: 900;
-  top: 104px;
+  top: 94px;
   right: 20px;
   display: flex;
   gap: 6px;
@@ -753,13 +766,14 @@ body,
 }
 
 .panelSwitcher button {
-  padding: 8px 12px;
+  padding: 7px 10px;
   border: 0;
   border-radius: 8px;
   background: transparent;
   color: #475569;
   cursor: pointer;
   font-weight: 700;
+  font-size: 12px;
 }
 
 .panelSwitcher button:hover,
@@ -773,10 +787,42 @@ body,
   z-index: 850;
   top: 156px;
   right: 20px;
-  width: min(400px, calc(100% - 40px));
+  width: min(380px, calc(100% - 40px));
   max-height: calc(100% - 190px);
   overflow: auto;
   border-radius: 14px;
+  font-size: 13px;
+}
+
+.mapAnalysisPanel.rankingPanelContainer {
+  width: min(280px, calc(100% - 40px));
+}
+
+.rankingPanelContainer .sidePanel {
+  gap: 4px;
+  padding: 10px 12px;
+}
+
+.rankingPanelContainer .sidePanel h2 {
+  font-size: 15px;
+}
+
+.rankingPanelContainer .rankingHeader button {
+  width: 26px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 18px;
+}
+
+.rankingPanelContainer .rankItem {
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.rankingPanelContainer .rankItem p {
+  margin-top: 2px;
+  font-size: 11px;
 }
 
 .mapAnalysisPanel.comparisonDrawer {
@@ -899,8 +945,8 @@ body,
   z-index: 800;
   right: auto;
   left: 20px;
-  bottom: 104px;
-  padding: 10px 12px 4px;
+  bottom: 72px;
+  padding: 8px 10px 3px;
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
@@ -910,7 +956,7 @@ body,
 
 .mapLegend .legend {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .mapLegend .legend div {
@@ -923,14 +969,29 @@ body,
 }
 
 .facilityLegend {
+  max-height: 180px;
   margin-top: 9px;
   padding-top: 7px;
+  overflow: hidden;
   border-top: 1px solid #cbd5e1;
+  opacity: 1;
+  transition: max-height 320ms ease-in-out, margin-top 320ms ease-in-out,
+    padding-top 320ms ease-in-out, border-color 320ms ease-in-out,
+    opacity 320ms ease-in-out;
+}
+
+.facilityLegend.hidden {
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-color: transparent;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .facilityLegend h3 {
   margin: 0 0 7px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .facilityLegendPin {
@@ -976,7 +1037,7 @@ body,
   right: 20px;
   top: 14px;
   bottom: auto;
-  left: calc(min(720px, calc(100% - 420px)) + 40px);
+  left: calc(min(600px, calc(100% - 400px)) + 40px);
   display: flex;
   justify-content: center;
   pointer-events: none;
@@ -984,7 +1045,7 @@ body,
 
 .summary {
   display: grid;
-  grid-template-columns: minmax(190px, 1.35fr) repeat(4, minmax(120px, 1fr));
+  grid-template-columns: minmax(170px, 1.35fr) repeat(4, minmax(110px, 1fr));
   width: min(980px, 100%);
   gap: 0;
   margin: 0;
@@ -994,7 +1055,7 @@ body,
 
 .card {
   min-width: 0;
-  padding: 11px 14px;
+  padding: 9px 12px;
   border-right: 1px solid #e2e8f0;
   border-radius: 0;
   background: transparent;
@@ -1007,11 +1068,11 @@ body,
 
 .card span {
   margin-bottom: 3px;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .card strong {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .mapMessage {
@@ -1048,7 +1109,8 @@ body,
   }
 
   .leaflet-top.leaflet-left {
-    top: 306px;
+    top: auto;
+    bottom: calc(72px + var(--legend-height, 0px) + 12px);
   }
 
   .header p {

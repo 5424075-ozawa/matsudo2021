@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import Header from "./components/Header";
 import ControlPanel from "./components/ControlPanel";
@@ -12,6 +12,8 @@ import { useFlowData } from "./hooks/useFlowData";
 import { usePlaceNames } from "./hooks/usePlaceNames";
 
 function App() {
+  const legendRef = useRef(null);
+  const [legendHeight, setLegendHeight] = useState(0);
   const [month, setMonth] = useState("01");
   const [dayflag, setDayflag] = useState("0");
   const [timezone, setTimezone] = useState("0");
@@ -76,6 +78,17 @@ function App() {
       .slice(0, 10);
   }, [filteredData]);
 
+  useEffect(() => {
+    if (!legendRef.current) return undefined;
+
+    const observer = new ResizeObserver(([entry]) => {
+      setLegendHeight(entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height);
+    });
+
+    observer.observe(legendRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   function handleMeshSelect(meshId) {
     setSelectedMeshIds((currentIds) => {
       let nextIds;
@@ -136,7 +149,12 @@ function App() {
 
   return (
     <div className="page">
-      <main className="mapStage">
+      <main
+        className={`mapStage ${
+          activePanel === "comparison" ? "comparisonActive" : ""
+        }`}
+        style={{ "--legend-height": `${legendHeight}px` }}
+      >
         <FlowMap
           data={filteredData}
           fitArea={loadedArea}
@@ -199,6 +217,7 @@ function App() {
           <div
             className={`mapAnalysisPanel ${
               activePanel === "comparison" ? "comparisonDrawer" : ""
+            } ${activePanel === "ranking" ? "rankingPanelContainer" : ""
             } ${comparisonMinimized ? "minimized" : ""}`}
             style={{ "--comparison-height": `${comparisonHeight}%` }}
           >
@@ -250,7 +269,7 @@ function App() {
           </div>
         )}
 
-        <aside className="mapLegend" aria-label="地図の凡例">
+        <aside ref={legendRef} className="mapLegend" aria-label="地図の凡例">
           <Legend
             maxPopulation={statistics.maxPopulation}
             showCommercialFacilities={showCommercialFacilities}

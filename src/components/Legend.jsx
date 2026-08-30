@@ -23,27 +23,31 @@ function Legend({ maxPopulation, showCommercialFacilities }) {
         ))
       )}
 
-      {showCommercialFacilities && (
-        <section className="facilityLegend" aria-label="商業施設の規模">
-          <h3>商業施設</h3>
-          <div>
-            <span className="facilityLegendPin large"></span>
-            大（20,000㎡以上）
-          </div>
-          <div>
-            <span className="facilityLegendPin medium"></span>
-            中（5,000〜20,000㎡未満）
-          </div>
-          <div>
-            <span className="facilityLegendPin small"></span>
-            小（5,000㎡未満）
-          </div>
-          <div>
-            <span className="facilityLegendPin unknown"></span>
-            面積不明
-          </div>
-        </section>
-      )}
+      <section
+        className={`facilityLegend ${
+          showCommercialFacilities ? "visible" : "hidden"
+        }`}
+        aria-label="商業施設の規模"
+        aria-hidden={!showCommercialFacilities}
+      >
+        <h3>商業施設</h3>
+        <div>
+          <span className="facilityLegendPin large"></span>
+          大（20,000㎡以上）
+        </div>
+        <div>
+          <span className="facilityLegendPin medium"></span>
+          中（5,000〜20,000㎡未満）
+        </div>
+        <div>
+          <span className="facilityLegendPin small"></span>
+          小（5,000㎡未満）
+        </div>
+        <div>
+          <span className="facilityLegendPin unknown"></span>
+          面積不明
+        </div>
+      </section>
     </div>
   );
 }

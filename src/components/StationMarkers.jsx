@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CircleMarker, Popup } from "react-leaflet";
+import { CircleMarker, Pane, Popup } from "react-leaflet";
 
 import { mesh1kmToBounds } from "../utils/mesh";
 
@@ -67,19 +67,24 @@ function StationMarkers({ data }) {
   }, [visibleStations]);
 
   return (
-    <>
+    <Pane
+      name="stationMarkersPane"
+      className="mapMarkerPane"
+      style={{ zIndex: 600 }}
+    >
       {visibleStations.map((station) => (
         <CircleMarker
           key={station.id}
           center={[station.lat, station.lng]}
           radius={getMarkerRadius(station.passenger, maxPassenger)}
+          pane="stationMarkersPane"
           pathOptions={{
             color: "#111",
             weight: 1,
             fillOpacity: 0.55,
           }}
         >
-          <Popup>
+          <Popup pane="popupPane">
             <div>
               <strong>{station.name}駅</strong>
               <br />
@@ -95,7 +100,7 @@ function StationMarkers({ data }) {
           </Popup>
         </CircleMarker>
       ))}
-    </>
+    </Pane>
   );
 }
 

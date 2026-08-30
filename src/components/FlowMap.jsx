@@ -27,6 +27,20 @@ function MapInteractionHandler({ onInteraction }) {
   return null;
 }
 
+function MapPaneVisibility({ name, visible }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const pane = map.getPane(name);
+    if (!pane) return;
+
+    pane.style.opacity = visible ? "1" : "0";
+    pane.style.pointerEvents = visible ? "auto" : "none";
+  }, [map, name, visible]);
+
+  return null;
+}
+
 function insetBounds([[south, west], [north, east]]) {
   const latitudeInset = (north - south) * 0.012;
   const longitudeInset = (east - west) * 0.012;
@@ -133,7 +147,7 @@ function FlowMap({
                   click: () => onMeshSelect(item.mesh1kmid),
                 }}
               >
-                <Popup>
+                <Popup pane="popupPane">
                   <div>
                     <strong>{getPlaceName(item.mesh1kmid)}</strong>
                     <br />
@@ -150,8 +164,13 @@ function FlowMap({
             );
         })}
 
-        {showStations && <StationMarkers data={data} />}
-        {showCommercialFacilities && <OsmCommercialMarkers data={data} />}
+        <StationMarkers data={data} />
+        <OsmCommercialMarkers data={data} />
+        <MapPaneVisibility name="stationMarkersPane" visible={showStations} />
+        <MapPaneVisibility
+          name="commercialMarkersPane"
+          visible={showCommercialFacilities}
+        />
       </MapContainer>
     </div>
   );
