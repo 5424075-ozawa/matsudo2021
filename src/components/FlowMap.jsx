@@ -62,6 +62,22 @@ function MapAreaFit({ data, area }) {
   return null;
 }
 
+function MapMeshFocus({ request }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!request.meshId) return;
+
+    const center = latLngBounds(mesh1kmToBounds(request.meshId)).getCenter();
+    map.flyTo(center, Math.max(map.getZoom(), 14), {
+      animate: true,
+      duration: 0.6,
+    });
+  }, [map, request]);
+
+  return null;
+}
+
 function FlowMap({
   data,
   fitArea,
@@ -70,6 +86,7 @@ function FlowMap({
   showStations,
   selectedMeshIds,
   selectedMeshColorSlots,
+  meshFocusRequest,
   onMeshSelect,
   onMapInteraction,
 }) {
@@ -89,6 +106,7 @@ function FlowMap({
         />
 
         <MapAreaFit data={data} area={fitArea} />
+        <MapMeshFocus request={meshFocusRequest} />
         <MapInteractionHandler onInteraction={onMapInteraction} />
 
         {data.map((item) => {

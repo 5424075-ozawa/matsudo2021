@@ -133,12 +133,57 @@ body,
   font-size: 20px;
 }
 
+.rankingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rankingHeader h2 {
+  margin: 0;
+}
+
+.rankingHeader button {
+  display: grid;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #e5e7eb;
+  color: #475569;
+  cursor: pointer;
+  place-items: center;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.rankingHeader button:hover {
+  background: #d1d5db;
+}
+
 .rankItem {
   display: flex;
+  width: 100%;
   justify-content: space-between;
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid #e0e0e0;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.rankItem:hover,
+.rankItem:focus-visible {
+  background: #f1f5f9;
+  outline: none;
 }
 
 .rankItem p {
@@ -776,7 +821,8 @@ body,
 .mapLegend {
   position: absolute;
   z-index: 800;
-  right: 20px;
+  right: auto;
+  left: 20px;
   bottom: 104px;
   padding: 10px 12px 4px;
   border: 1px solid rgba(255, 255, 255, 0.72);
@@ -932,7 +978,8 @@ body,
   }
 
   .mapLegend {
-    right: 10px;
+    right: auto;
+    left: 10px;
     bottom: 92px;
   }
 

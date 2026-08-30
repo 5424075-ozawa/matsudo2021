@@ -24,6 +24,10 @@ function App() {
 
   const [selectedMeshIds, setSelectedMeshIds] = useState([]);
   const [selectedMeshColorSlots, setSelectedMeshColorSlots] = useState({});
+  const [meshFocusRequest, setMeshFocusRequest] = useState({
+    meshId: null,
+    requestId: 0,
+  });
 
   const {
     data: allData,
@@ -68,7 +72,7 @@ function App() {
   const ranking = useMemo(() => {
     return [...filteredData]
       .sort((a, b) => b.population - a.population)
-      .slice(0, 5);
+      .slice(0, 10);
   }, [filteredData]);
 
   function handleMeshSelect(meshId) {
@@ -111,6 +115,14 @@ function App() {
     setComparisonMinimized(false);
   }
 
+  function handleRankingMeshSelect(meshId) {
+    handleMeshSelect(meshId);
+    setMeshFocusRequest((current) => ({
+      meshId,
+      requestId: current.requestId + 1,
+    }));
+  }
+
   function resizeComparisonDrawer(event) {
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
 
@@ -132,6 +144,7 @@ function App() {
           showStations={showStations}
           selectedMeshIds={selectedMeshIds}
           selectedMeshColorSlots={selectedMeshColorSlots}
+          meshFocusRequest={meshFocusRequest}
           onMeshSelect={handleMeshSelect}
           onMapInteraction={() => {
             if (activePanel === "comparison") {
@@ -174,19 +187,6 @@ function App() {
           >
             ランキング
           </button>
-          <button
-            type="button"
-            className={activePanel === "comparison" ? "active" : ""}
-            onClick={() =>
-              setActivePanel((currentPanel) => {
-                if (currentPanel === "comparison") return null;
-                setComparisonMinimized(false);
-                return "comparison";
-              })
-            }
-          >
-            メッシュ分析
-          </button>
         </div>
 
         {activePanel && (
@@ -223,6 +223,8 @@ function App() {
               <RankingPanel
                 ranking={ranking}
                 getPlaceName={getPlaceName}
+                onMeshSelect={handleRankingMeshSelect}
+                onClose={() => setActivePanel(null)}
               />
             )}
             {activePanel === "comparison" && (
