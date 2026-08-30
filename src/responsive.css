@@ -233,17 +233,37 @@
     font-size: 9px;
     line-height: 1.4;
     opacity: 1;
-    transition: max-height 320ms ease, min-height 320ms ease,
-      padding 320ms ease, opacity 220ms ease;
+    transition: opacity 360ms ease;
+  }
+
+  .footerText {
+    display: block;
+    width: 100%;
+    opacity: 1;
+    transition: opacity 360ms ease;
+  }
+
+  .footer.collapsing {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .footer.hidden {
-    min-height: 0;
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    position: absolute;
+    z-index: 1200;
+    right: 10px;
+    bottom: 10px;
+    width: 24px;
+    min-height: 22px;
+    max-height: 22px;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .footer.hidden .footerText {
+    visibility: hidden;
     opacity: 0;
-    pointer-events: none;
   }
 
   .footerCloseButton {
@@ -260,8 +280,6 @@
     color: #475569;
     cursor: pointer;
     place-items: center;
-    font-size: 17px;
-    line-height: 1;
     transform: translateY(-50%);
   }
 
@@ -269,23 +287,11 @@
     background: #d1d5db;
   }
 
-  .footerRestoreButton {
-    position: absolute;
-    z-index: 900;
-    right: 10px;
-    bottom: 18px;
-    display: block;
-    padding: 6px 10px;
-    background: #fff;
+  .footer.hidden .footerCloseButton {
+    top: 0;
+    right: 0;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 240ms ease-in-out, transform 240ms ease-in-out;
+    transform: none;
   }
 
-  .footerRestoreButton.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(6px);
-  }
 }

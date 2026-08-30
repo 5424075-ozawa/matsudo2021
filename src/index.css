@@ -487,6 +487,7 @@ body,
 
 /* Map-first dashboard layout */
 .page {
+  position: relative;
   display: flex;
   height: 100vh;
   height: 100dvh;
@@ -1333,8 +1334,7 @@ body,
   text-align: center;
 }
 
-.footerCloseButton,
-.footerRestoreButton {
+.footerCloseButton {
   display: none;
 }
 

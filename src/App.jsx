@@ -14,6 +14,7 @@ import { usePlaceNames } from "./hooks/usePlaceNames";
 
 function App() {
   const legendRef = useRef(null);
+  const footerTransitionTimerRef = useRef(null);
   const [legendHeight, setLegendHeight] = useState(0);
   const [month, setMonth] = useState("01");
   const [dayflag, setDayflag] = useState("0");
@@ -24,6 +25,7 @@ function App() {
   const [showCommercialFacilities, setShowCommercialFacilities] = useState(true);
   const [showLegend, setShowLegend] = useState(true);
   const [showFooter, setShowFooter] = useState(true);
+  const [footerCollapsing, setFooterCollapsing] = useState(false);
   const [headerMinimized, setHeaderMinimized] = useState(false);
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
@@ -44,12 +46,36 @@ function App() {
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 900px)");
     const restoreFooterOnDesktop = (event) => {
-      if (!event.matches) setShowFooter(true);
+      if (!event.matches) {
+        clearTimeout(footerTransitionTimerRef.current);
+        setFooterCollapsing(false);
+        setShowFooter(true);
+      }
     };
 
     mobileQuery.addEventListener("change", restoreFooterOnDesktop);
     return () => mobileQuery.removeEventListener("change", restoreFooterOnDesktop);
   }, []);
+
+  useEffect(
+    () => () => clearTimeout(footerTransitionTimerRef.current),
+    []
+  );
+
+  function toggleFooter() {
+    if (!showFooter) {
+      setShowFooter(true);
+      return;
+    }
+
+    if (footerCollapsing) return;
+
+    setFooterCollapsing(true);
+    footerTransitionTimerRef.current = setTimeout(() => {
+      setShowFooter(false);
+      setFooterCollapsing(false);
+    }, 360);
+  }
 
   const {
     data: allData,
@@ -339,21 +365,6 @@ function App() {
           凡例
         </button>
 
-        <button
-          type="button"
-          className={`displayToggleButton footerRestoreButton ${
-            showFooter ? "hidden" : "visible"
-          }`}
-          onClick={(event) => {
-            event.currentTarget.blur();
-            setShowFooter(true);
-          }}
-          aria-hidden={showFooter}
-          tabIndex={showFooter ? -1 : 0}
-        >
-          出典
-        </button>
-
         <div className="mapSummary">
           <SummaryCards
             month={month}
@@ -371,8 +382,9 @@ function App() {
       </main>
 
       <footer
-        className={`footer ${showFooter ? "visible" : "hidden"}`}
-        aria-hidden={!showFooter}
+        className={`footer ${
+          showFooter ? (footerCollapsing ? "collapsing" : "visible") : "hidden"
+        }`}
       >
         <span className="footerText">
           「全国の人流オープンデータ」（国土交通省）および
@@ -382,15 +394,15 @@ function App() {
         <button
           type="button"
           className="footerCloseButton"
-          onClick={(event) => {
-            event.currentTarget.blur();
-            setShowFooter(false);
-          }}
-          tabIndex={showFooter ? 0 : -1}
-          aria-label="出典を閉じる"
-          title="出典を閉じる"
+          onClick={toggleFooter}
+          aria-expanded={showFooter}
+          aria-label={showFooter ? "出典を収納" : "出典を展開"}
+          title={showFooter ? "出典を収納" : "出典を展開"}
         >
-          <span aria-hidden="true">×</span>
+          <span
+            className={`drawerToggleIcon ${showFooter ? "down" : "up"}`}
+            aria-hidden="true"
+          />
         </button>
       </footer>
     </div>
