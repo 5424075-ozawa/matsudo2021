@@ -1,4 +1,4 @@
-function Legend({ maxPopulation, showCommercialFacilities }) {
+function Legend({ maxPopulation, showCommercialFacilities, onClose }) {
   const ranges = [
     "0%〜10%未満",
     "10%〜20%未満",
@@ -10,7 +10,21 @@ function Legend({ maxPopulation, showCommercialFacilities }) {
 
   return (
     <div className="legend">
-      <h2>凡例</h2>
+      <div className="legendHeader">
+        <h2>凡例</h2>
+        <button
+          type="button"
+          className="legendCloseButton"
+          onClick={(event) => {
+            event.currentTarget.blur();
+            onClose();
+          }}
+          aria-label="凡例を閉じる"
+          title="凡例を閉じる"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
 
       {maxPopulation === 0 ? (
         <div>表示できる人口データがありません</div>

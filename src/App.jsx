@@ -22,6 +22,9 @@ function App() {
 
   const [showStations, setShowStations] = useState(true);
   const [showCommercialFacilities, setShowCommercialFacilities] = useState(true);
+  const [showLegend, setShowLegend] = useState(true);
+  const [showFooter, setShowFooter] = useState(true);
+  const [headerMinimized, setHeaderMinimized] = useState(false);
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
   const [comparisonHeight, setComparisonHeight] = useState(75);
@@ -37,6 +40,16 @@ function App() {
     lng: null,
     requestId: 0,
   });
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 900px)");
+    const restoreFooterOnDesktop = (event) => {
+      if (!event.matches) setShowFooter(true);
+    };
+
+    mobileQuery.addEventListener("change", restoreFooterOnDesktop);
+    return () => mobileQuery.removeEventListener("change", restoreFooterOnDesktop);
+  }, []);
 
   const {
     data: allData,
@@ -155,10 +168,19 @@ function App() {
 
   return (
     <div className="page">
-      <div className="mapTopLeft mapTopBar">
-        <Header />
+      <div
+        className={`mapTopLeft mapTopBar ${
+          headerMinimized ? "minimized" : ""
+        }`}
+      >
+        <Header
+          minimized={headerMinimized}
+          onToggleMinimize={() => setHeaderMinimized((current) => !current)}
+        />
 
-        <ControlPanel
+        <div className="headerCollapsibleContent">
+          <div className="headerCollapsibleInner">
+            <ControlPanel
           month={month}
           dayflag={dayflag}
           timezone={timezone}
@@ -177,10 +199,10 @@ function App() {
           onShowCommercialFacilitiesChange={() =>
             setShowCommercialFacilities((current) => !current)
           }
-        />
+            />
 
-        <div className="panelSwitcher" aria-label="分析パネル切り替え">
-          <PlaceSearch
+            <div className="panelSwitcher" aria-label="分析パネル切り替え">
+              <PlaceSearch
             data={filteredData}
             onSelect={(place) => {
               if (place.type === "station") setShowStations(true);
@@ -191,8 +213,8 @@ function App() {
                 requestId: current.requestId + 1,
               }));
             }}
-          />
-          <button
+              />
+              <button
             type="button"
             className={`displayToggleButton rankingToggle ${
               activePanel === "ranking" ? "active" : ""
@@ -200,9 +222,11 @@ function App() {
             onClick={() =>
               setActivePanel(activePanel === "ranking" ? null : "ranking")
             }
-          >
-            ランキング
-          </button>
+              >
+                ランキング
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -287,12 +311,48 @@ function App() {
           </div>
         )}
 
-        <aside ref={legendRef} className="mapLegend" aria-label="地図の凡例">
+        <aside
+          ref={legendRef}
+          className={`mapLegend ${showLegend ? "visible" : "hidden"}`}
+          aria-label="地図の凡例"
+          aria-hidden={!showLegend}
+        >
           <Legend
             maxPopulation={statistics.maxPopulation}
             showCommercialFacilities={showCommercialFacilities}
+            onClose={() => setShowLegend(false)}
           />
         </aside>
+
+        <button
+          type="button"
+          className={`displayToggleButton legendRestoreButton ${
+            showLegend ? "hidden" : "visible"
+          }`}
+          onClick={(event) => {
+            event.currentTarget.blur();
+            setShowLegend(true);
+          }}
+          aria-hidden={showLegend}
+          tabIndex={showLegend ? -1 : 0}
+        >
+          凡例
+        </button>
+
+        <button
+          type="button"
+          className={`displayToggleButton footerRestoreButton ${
+            showFooter ? "hidden" : "visible"
+          }`}
+          onClick={(event) => {
+            event.currentTarget.blur();
+            setShowFooter(true);
+          }}
+          aria-hidden={showFooter}
+          tabIndex={showFooter ? -1 : 0}
+        >
+          出典
+        </button>
 
         <div className="mapSummary">
           <SummaryCards
@@ -310,10 +370,28 @@ function App() {
         {error && <p className="mapMessage error">{error}</p>}
       </main>
 
-      <footer className="footer">
-        「全国の人流オープンデータ」（国土交通省）および
-        「国土数値情報 駅別乗降客数データ」（国土交通省）、
-        商業施設・背景地図 © OpenStreetMap contributors（ODbL）を加工して作成
+      <footer
+        className={`footer ${showFooter ? "visible" : "hidden"}`}
+        aria-hidden={!showFooter}
+      >
+        <span className="footerText">
+          「全国の人流オープンデータ」（国土交通省）および
+          「国土数値情報 駅別乗降客数データ」（国土交通省）、
+          商業施設・背景地図 © OpenStreetMap contributors（ODbL）を加工して作成
+        </span>
+        <button
+          type="button"
+          className="footerCloseButton"
+          onClick={(event) => {
+            event.currentTarget.blur();
+            setShowFooter(false);
+          }}
+          tabIndex={showFooter ? 0 : -1}
+          aria-label="出典を閉じる"
+          title="出典を閉じる"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
       </footer>
     </div>
   );

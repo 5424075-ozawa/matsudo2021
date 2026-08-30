@@ -467,20 +467,6 @@ body,
   font-size: 13px;
 }
 
-@media (max-width: 1000px) {
-  .summary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .main {
-    grid-template-columns: 1fr;
-  }
-
-  .selectedMeshList {
-    grid-template-columns: 1fr;
-  }
-}
-
 .chartTooltip {
   background: #ffffff;
   border: 1px solid #d1d5db;
@@ -633,6 +619,40 @@ body,
   background: transparent;
   box-shadow: none;
   backdrop-filter: none;
+}
+
+.mapTopBar .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.headerMinimizeButton {
+  display: none;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #e5e7eb;
+  color: #475569;
+  cursor: pointer;
+  place-items: center;
+}
+
+.headerMinimizeButton:hover {
+  background: #d1d5db;
+}
+
+.headerCollapsibleContent,
+.headerCollapsibleInner {
+  display: contents;
 }
 
 .header h1 {
@@ -886,7 +906,7 @@ body,
 
 .placeSearch {
   position: relative;
-  width: 220px;
+  width: 190px;
 }
 
 .placeSearch input {
@@ -1085,36 +1105,6 @@ body,
   padding: 16px;
 }
 
-@media (min-width: 901px) {
-  .comparisonDrawer .comparisonPanel {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0 24px;
-    align-items: start;
-  }
-
-  .comparisonDrawer .comparisonHeader,
-  .comparisonDrawer .singleComparisonControl,
-  .comparisonDrawer .selectedMeshList,
-  .comparisonDrawer .comparisonCondition,
-  .comparisonDrawer .comparisonNote,
-  .comparisonDrawer .comparisonSubTitle,
-  .comparisonDrawer .error,
-  .comparisonDrawer .comparisonPanel > p:not(.comparisonCondition):not(.comparisonNote) {
-    grid-column: 1 / -1;
-  }
-
-  .comparisonDrawer .lineChartBox,
-  .comparisonDrawer .comparisonTableBox {
-    min-width: 0;
-    margin-top: 8px;
-  }
-
-  .comparisonDrawer .selectedMeshList {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
 .mapLegend {
   position: absolute;
   z-index: 800;
@@ -1127,6 +1117,47 @@ body,
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
   backdrop-filter: blur(12px);
+  max-height: 600px;
+  opacity: 1;
+  transition: max-height 320ms ease-in-out, padding 320ms ease-in-out,
+    border-color 320ms ease-in-out, opacity 320ms ease-in-out,
+    transform 320ms ease-in-out;
+}
+
+.mapLegend.hidden {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  border-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.legendRestoreButton {
+  position: absolute;
+  z-index: 900;
+  bottom: 36px;
+  left: 20px;
+  padding: 6px 10px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 240ms ease-in-out, transform 240ms ease-in-out;
+}
+
+.legendRestoreButton:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.legendRestoreButton.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
 }
 
 .mapLegend .legend {
@@ -1136,6 +1167,36 @@ body,
 
 .mapLegend .legend div {
   margin-bottom: 6px;
+}
+
+.mapLegend .legendHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mapLegend .legendHeader h2 {
+  margin: 0;
+}
+
+.legendCloseButton {
+  display: grid;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: #475569;
+  cursor: pointer;
+  place-items: center;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.legendCloseButton:hover {
+  background: #d1d5db;
 }
 
 .mapLegend .box {
@@ -1270,97 +1331,69 @@ body,
   text-align: center;
 }
 
-@media (max-width: 900px) {
-  .mapStage {
-    height: auto;
-  }
+.footerCloseButton,
+.footerRestoreButton {
+  display: none;
+}
 
-  .mapTopLeft {
-    top: 96px;
-    left: 10px;
-    width: calc(100% - 20px);
-  }
-
+@media (max-width: 1280px) {
   .mapTopBar {
-    top: auto;
-    right: auto;
-    left: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
   }
 
-  .mapTopLeft .controls {
-    flex-wrap: nowrap;
-  }
-
-  .leaflet-top.leaflet-left {
-    top: auto;
-    bottom: calc(72px + var(--legend-height, 0px) + 12px);
-  }
-
-  .header p {
-    display: none;
-  }
-
-  .controls {
-    max-width: calc(100% - 0px);
-  }
-
-  .panelSwitcher {
-    top: 266px;
-    right: 10px;
-  }
-
-  .mapAnalysisPanel {
-    top: 314px;
-    right: 10px;
-    width: min(380px, calc(100% - 20px));
-    max-height: calc(100% - 340px);
-  }
-
-  .mapAnalysisPanel.comparisonDrawer {
-    right: 0;
-    bottom: 0;
+  .mapTopBar .header {
     width: 100%;
-    height: var(--comparison-height, 75%);
-    max-height: none;
-    transform: none;
   }
 
-  @keyframes comparisonDrawerIn {
-    from {
-      opacity: 0;
-      transform: translateY(36px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .mapTopBar .controls,
+  .mapTopLeft.mapTopBar .controls {
+    width: 100%;
+    border-top: 1px solid #e2e8f0;
+    border-left: 0;
   }
 
-  .mapSummary {
-    right: 10px;
-    top: 10px;
-    bottom: auto;
-    left: 58px;
-    overflow-x: auto;
-    justify-content: flex-start;
+  .mapTopBar .panelSwitcher {
+    width: 100%;
+    justify-content: center;
+    border-top: 1px solid #e2e8f0;
+    border-left: 0;
   }
 
-  .mapLegend {
-    right: auto;
-    left: 10px;
-    bottom: 92px;
+  .conditionControls {
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 901px) {
+  .comparisonDrawer .comparisonPanel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 24px;
+    align-items: start;
   }
 
-  .summary {
-    grid-template-columns: repeat(5, minmax(145px, 1fr));
-    min-width: 760px;
+  .comparisonDrawer .comparisonHeader,
+  .comparisonDrawer .singleComparisonControl,
+  .comparisonDrawer .selectedMeshList,
+  .comparisonDrawer .comparisonCondition,
+  .comparisonDrawer .comparisonNote,
+  .comparisonDrawer .comparisonSubTitle,
+  .comparisonDrawer .error,
+  .comparisonDrawer .comparisonPanel > p:not(.comparisonCondition):not(.comparisonNote) {
+    grid-column: 1 / -1;
   }
 
-  .footer {
-    height: 44px;
-    padding: 8px 12px;
-    font-size: 10px;
+  .comparisonDrawer .lineChartBox,
+  .comparisonDrawer .comparisonTableBox {
+    min-width: 0;
+    margin-top: 8px;
+  }
+
+  .comparisonDrawer .selectedMeshList {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }

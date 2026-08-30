@@ -78,6 +78,7 @@ function ControlPanel({
         >
           商業施設
         </button>
+
         </div>
       </div>
     </section>

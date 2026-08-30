@@ -27,6 +27,32 @@ function MapInteractionHandler({ onInteraction }) {
   return null;
 }
 
+function MapResizeHandler() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    let animationFrame = null;
+
+    const observer = new ResizeObserver(() => {
+      if (animationFrame != null) cancelAnimationFrame(animationFrame);
+
+      animationFrame = requestAnimationFrame(() => {
+        map.invalidateSize({ animate: false, pan: false });
+      });
+    });
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+      if (animationFrame != null) cancelAnimationFrame(animationFrame);
+    };
+  }, [map]);
+
+  return null;
+}
+
 function MapPaneVisibility({ name, visible }) {
   const map = useMap();
 
@@ -141,6 +167,7 @@ function FlowMap({
         <MapMeshFocus request={meshFocusRequest} />
         <MapPointFocus request={pointFocusRequest} />
         <MapInteractionHandler onInteraction={onMapInteraction} />
+        <MapResizeHandler />
 
         {data.map((item) => {
             const selectedIndex = selectedMeshIds.indexOf(item.mesh1kmid);
