@@ -6,6 +6,7 @@ import SummaryCards from "./components/SummaryCards";
 import FlowMap from "./components/FlowMap";
 import RankingPanel from "./components/RankingPanel";
 import MeshComparisonPanel from "./components/MeshComparisonPanel";
+import Legend from "./components/Legend";
 
 import { useFlowData } from "./hooks/useFlowData";
 import { usePlaceNames } from "./hooks/usePlaceNames";
@@ -149,12 +150,13 @@ function App() {
 
         {activePanel && (
           <div className="mapAnalysisPanel">
-            {activePanel === "ranking" ? (
+            {activePanel === "ranking" && (
               <RankingPanel
                 ranking={ranking}
                 getPlaceName={getPlaceName}
               />
-            ) : (
+            )}
+            {activePanel === "comparison" && (
               <MeshComparisonPanel
                 selectedMeshIds={selectedMeshIds}
                 dayflag={dayflag}
@@ -165,6 +167,10 @@ function App() {
             )}
           </div>
         )}
+
+        <aside className="mapLegend" aria-label="人口の凡例">
+          <Legend maxPopulation={statistics.maxPopulation} />
+        </aside>
 
         <div className="mapSummary">
           <SummaryCards

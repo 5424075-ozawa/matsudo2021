@@ -5,11 +5,11 @@ export function getColor(value, max) {
 
   const ratio = value / max;
 
-  if (ratio > 0.8) return "#800026";
-  if (ratio > 0.6) return "#bd0026";
-  if (ratio > 0.4) return "#e31a1c";
-  if (ratio > 0.2) return "#fc4e2a";
-  if (ratio > 0.1) return "#fd8d3c";
+  if (ratio < 0.1) return "#feb24c";
+  if (ratio < 0.2) return "#fd8d3c";
+  if (ratio < 0.4) return "#fc4e2a";
+  if (ratio < 0.6) return "#e31a1c";
+  if (ratio < 0.8) return "#bd0026";
 
-  return "#feb24c";
+  return "#800026";
 }

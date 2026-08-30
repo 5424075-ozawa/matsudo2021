@@ -1,5 +1,3 @@
-import Legend from "./Legend.jsx";
-
 function RankingPanel({ ranking, getPlaceName }) {
   return (
     <aside className="sidePanel">
@@ -18,8 +16,6 @@ function RankingPanel({ ranking, getPlaceName }) {
           <span>{item.population.toLocaleString()}人</span>
         </div>
       ))}
-
-      <Legend />
     </aside>
   );
 }
