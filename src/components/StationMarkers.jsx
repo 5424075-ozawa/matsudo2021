@@ -85,7 +85,12 @@ function StationMarkers({ data }) {
               <br />
               乗降客数：{station.passenger.toLocaleString()}人/日
               <br />
-              路線：{station.lines.join("、")}
+              路線：
+              {station.lines.map((item) => (
+                <div key={`${item.company}-${item.line}`}>
+                  {item.company} {item.line}
+                </div>
+              ))}
             </div>
           </Popup>
         </CircleMarker>

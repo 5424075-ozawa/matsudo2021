@@ -100,7 +100,12 @@ async function main() {
         if (!map.has(key)) {
           map.set(key, {
             ...station,
-            lines: [station.line],
+            lines: [
+              {
+                company: station.company,
+                line: station.line,
+              },
+            ],
           });
           return map;
         }
@@ -109,8 +114,16 @@ async function main() {
 
         current.passenger += station.passenger;
 
-        if (!current.lines.includes(station.line)) {
-          current.lines.push(station.line);
+        const hasSameLine = current.lines.some(
+          (item) =>
+            item.company === station.company && item.line === station.line
+        );
+
+        if (!hasSameLine) {
+          current.lines.push({
+            company: station.company,
+            line: station.line,
+          });
         }
 
         return map;
