@@ -57,6 +57,26 @@ function App() {
     return () => mobileQuery.removeEventListener("change", restoreFooterOnDesktop);
   }, []);
 
+  useEffect(() => {
+    const updateViewportHeight = () => {
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      document.documentElement.style.setProperty(
+        "--app-viewport-height",
+        `${viewportHeight}px`
+      );
+    };
+
+    updateViewportHeight();
+    window.addEventListener("resize", updateViewportHeight);
+    window.visualViewport?.addEventListener("resize", updateViewportHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateViewportHeight);
+      window.visualViewport?.removeEventListener("resize", updateViewportHeight);
+      document.documentElement.style.removeProperty("--app-viewport-height");
+    };
+  }, []);
+
   useEffect(
     () => () => clearTimeout(footerTransitionTimerRef.current),
     []
