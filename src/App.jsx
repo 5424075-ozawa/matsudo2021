@@ -8,6 +8,7 @@ import RankingPanel from "./components/RankingPanel";
 import MeshComparisonPanel from "./components/MeshComparisonPanel";
 import Legend from "./components/Legend";
 import PlaceSearch from "./components/PlaceSearch";
+import TutorialOverlay from "./components/TutorialOverlay";
 
 import { useFlowData } from "./hooks/useFlowData";
 import { usePlaceNames } from "./hooks/usePlaceNames";
@@ -30,6 +31,14 @@ function App() {
   const [activePanel, setActivePanel] = useState("ranking");
   const [comparisonMinimized, setComparisonMinimized] = useState(false);
   const [comparisonHeight, setComparisonHeight] = useState(75);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(() => {
+    try {
+      return window.localStorage.getItem("flow-map-tutorial-complete") !== "true";
+    } catch {
+      return true;
+    }
+  });
 
   const [selectedMeshIds, setSelectedMeshIds] = useState([]);
   const [selectedMeshColorSlots, setSelectedMeshColorSlots] = useState({});
@@ -95,6 +104,16 @@ function App() {
       setShowFooter(false);
       setFooterCollapsing(false);
     }, 360);
+  }
+
+  function closeTutorial() {
+    setShowTutorial(false);
+    setTutorialStep(0);
+    try {
+      window.localStorage.setItem("flow-map-tutorial-complete", "true");
+    } catch {
+      // The tutorial still closes when browser storage is unavailable.
+    }
   }
 
   const {
@@ -260,6 +279,11 @@ function App() {
         <Header
           minimized={headerMinimized}
           onToggleMinimize={() => setHeaderMinimized((current) => !current)}
+          onOpenTutorial={() => {
+            setHeaderMinimized(false);
+            setTutorialStep(0);
+            setShowTutorial(true);
+          }}
         />
 
         <div className="headerCollapsibleContent">
@@ -471,6 +495,15 @@ function App() {
           />
         </button>
       </footer>
+
+      {showTutorial && (
+        <TutorialOverlay
+          step={tutorialStep}
+          onNext={() => setTutorialStep((current) => Math.min(2, current + 1))}
+          onBack={() => setTutorialStep((current) => Math.max(0, current - 1))}
+          onClose={closeTutorial}
+        />
+      )}
     </div>
   );
 }

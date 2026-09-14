@@ -700,6 +700,144 @@ body,
   background: #d1d5db;
 }
 
+.headerActions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.tutorialOpenButton {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 800;
+  place-items: center;
+}
+
+.tutorialOpenButton:hover,
+.tutorialOpenButton:focus-visible {
+  border-color: #2563eb;
+  color: #2563eb;
+  outline: none;
+}
+
+.tutorialBackdrop {
+  position: fixed;
+  z-index: 3000;
+  inset: 0;
+  display: grid;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.58);
+  place-items: center;
+}
+
+.tutorialCard {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 30px 28px 24px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.32);
+  text-align: center;
+}
+
+.tutorialSkip {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.tutorialStepBadge {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  place-items: center;
+}
+
+.tutorialProgress {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tutorialCard h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.tutorialDescription {
+  min-height: 48px;
+  margin: 12px 0 18px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.tutorialDots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.tutorialDots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.tutorialDots span.active { background: #2563eb; }
+
+.tutorialActions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tutorialActions button {
+  min-width: 100px;
+  min-height: 42px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.tutorialActions .primary {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+
+.tutorialActions .secondary {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #475569;
+}
+
 .headerCollapsibleContent,
 .headerCollapsibleInner {
   display: contents;

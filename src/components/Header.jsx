@@ -1,4 +1,4 @@
-function Header({ minimized, onToggleMinimize }) {
+function Header({ minimized, onToggleMinimize, onOpenTutorial }) {
   return (
     <header className="header">
       <div className="headerText">
@@ -13,19 +13,30 @@ function Header({ minimized, onToggleMinimize }) {
         </p>
       </div>
 
-      <button
-        type="button"
-        className="drawerToggleButton headerMinimizeButton"
-        onClick={onToggleMinimize}
-        aria-expanded={!minimized}
-        aria-label={minimized ? "ヘッダーを展開" : "ヘッダーを小さくする"}
-        title={minimized ? "ヘッダーを展開" : "ヘッダーを小さくする"}
-      >
-        <span
-          className={`drawerToggleIcon ${minimized ? "down" : "up"}`}
-          aria-hidden="true"
-        />
-      </button>
+      <div className="headerActions">
+        <button
+          type="button"
+          className="tutorialOpenButton"
+          onClick={onOpenTutorial}
+          aria-label="使い方を見る"
+          title="使い方を見る"
+        >
+          ?
+        </button>
+        <button
+          type="button"
+          className="drawerToggleButton headerMinimizeButton"
+          onClick={onToggleMinimize}
+          aria-expanded={!minimized}
+          aria-label={minimized ? "ヘッダーを展開" : "ヘッダーを小さくする"}
+          title={minimized ? "ヘッダーを展開" : "ヘッダーを小さくする"}
+        >
+          <span
+            className={`drawerToggleIcon ${minimized ? "down" : "up"}`}
+            aria-hidden="true"
+          />
+        </button>
+      </div>
     </header>
   );
 }
