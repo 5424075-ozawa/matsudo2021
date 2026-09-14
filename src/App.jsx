@@ -499,7 +499,7 @@ function App() {
       {showTutorial && (
         <TutorialOverlay
           step={tutorialStep}
-          onNext={() => setTutorialStep((current) => Math.min(2, current + 1))}
+          onNext={() => setTutorialStep((current) => Math.min(3, current + 1))}
           onBack={() => setTutorialStep((current) => Math.max(0, current - 1))}
           onClose={closeTutorial}
         />
