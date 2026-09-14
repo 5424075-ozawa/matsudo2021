@@ -13,7 +13,7 @@ import StationMarkers from "./StationMarkers";
 import OsmCommercialMarkers from "./OsmCommercialMarkers";
 
 import { mesh1kmToBounds } from "../utils/mesh";
-import { getColor } from "../utils/color";
+import { getDifferenceColor, getTimeOfDayColor } from "../utils/color";
 import { selectionColors } from "../utils/selectionColors";
 
 import { dayflagLabels, timezoneLabels } from "../utils/labels";
@@ -151,6 +151,8 @@ function FlowMap({
   onMeshSelect,
   onMapInteraction,
 }) {
+  const isDifferenceMode = data[0]?.timezone === "difference";
+
   return (
     <div className="mapArea">
       <MapContainer
@@ -187,7 +189,9 @@ function FlowMap({
                 pathOptions={{
                   color: isSelected ? selectedColor : "#555",
                   weight: isSelected ? 4 : 0.7,
-                  fillColor: getColor(item.population, maxPopulation),
+                  fillColor: isDifferenceMode
+                    ? getDifferenceColor(item.population, maxPopulation)
+                    : getTimeOfDayColor(item.population, maxPopulation, item.timezone),
                   fillOpacity: isSelected ? 0.6 : 0.45,
                 }}
                 eventHandlers={{
@@ -198,13 +202,25 @@ function FlowMap({
                   <div>
                     <strong>{getPlaceName(item.mesh1kmid)}</strong>
                     <br />
-                    滞在人口：{item.population.toLocaleString()}人
+                    {isDifferenceMode ? (
+                      <>
+                        昼：{item.daytimePopulation.toLocaleString()}人
+                        <br />
+                        夜：{item.nighttimePopulation.toLocaleString()}人
+                        <br />
+                        需要差（夜 − 昼）：
+                        {item.population > 0 ? "+" : ""}
+                        {item.population.toLocaleString()}人
+                      </>
+                    ) : (
+                      <>滞在人口：{item.population.toLocaleString()}人</>
+                    )}
                     <br />
                     年月：{item.year}年{Number(item.month)}月
                     <br />
                     区分：{dayflagLabels[item.dayflag]}
                     <br />
-                    時間帯：{timezoneLabels[item.timezone]}
+                    時間帯：{isDifferenceMode ? "昼夜の需要差" : timezoneLabels[item.timezone]}
                   </div>
                 </Popup>
               </Rectangle>

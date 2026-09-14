@@ -105,6 +105,37 @@ function App() {
   } = useFlowData(month, selectedArea);
 
   const filteredData = useMemo(() => {
+    if (timezone === "difference") {
+      const targetRows = allData.filter((item) => item.dayflag === dayflag);
+      const daytimeByMesh = new Map(
+        targetRows
+          .filter((item) => item.timezone === "1")
+          .map((item) => [item.mesh1kmid, item])
+      );
+      const nighttimeByMesh = new Map(
+        targetRows
+          .filter((item) => item.timezone === "2")
+          .map((item) => [item.mesh1kmid, item])
+      );
+      const meshIds = new Set([...daytimeByMesh.keys(), ...nighttimeByMesh.keys()]);
+
+      return [...meshIds].map((meshId) => {
+        const daytime = daytimeByMesh.get(meshId);
+        const nighttime = nighttimeByMesh.get(meshId);
+        const base = nighttime ?? daytime;
+        const daytimePopulation = daytime?.population ?? 0;
+        const nighttimePopulation = nighttime?.population ?? 0;
+
+        return {
+          ...base,
+          timezone: "difference",
+          daytimePopulation,
+          nighttimePopulation,
+          population: nighttimePopulation - daytimePopulation,
+        };
+      });
+    }
+
     return allData.filter(
       (item) =>
         item.dayflag === dayflag &&
@@ -122,7 +153,7 @@ function App() {
 
     const maxPopulation =
       filteredData.length > 0
-        ? Math.max(...filteredData.map((item) => item.population))
+        ? Math.max(...filteredData.map((item) => Math.abs(item.population)))
         : 0;
 
     const averagePopulation =
@@ -134,14 +165,21 @@ function App() {
       totalPopulation,
       maxPopulation,
       averagePopulation,
+      nighttimeIncreaseCount: filteredData.filter((item) => item.population > 0).length,
+      daytimeIncreaseCount: filteredData.filter((item) => item.population < 0).length,
+      maxNighttimeIncrease: Math.max(0, ...filteredData.map((item) => item.population)),
+      maxDaytimeIncrease: Math.max(0, ...filteredData.map((item) => -item.population)),
     };
   }, [filteredData]);
 
   const ranking = useMemo(() => {
     return [...filteredData]
-      .sort((a, b) => b.population - a.population)
-      .slice(0, 10);
-  }, [filteredData]);
+      .sort((a, b) =>
+        timezone === "difference"
+          ? Math.abs(b.population) - Math.abs(a.population)
+          : b.population - a.population
+      );
+  }, [filteredData, timezone]);
 
   useEffect(() => {
     if (!legendRef.current) return undefined;
@@ -335,6 +373,7 @@ function App() {
             {activePanel === "ranking" && (
               <RankingPanel
                 ranking={ranking}
+                isDifferenceMode={timezone === "difference"}
                 getPlaceName={getPlaceName}
                 onMeshSelect={handleRankingMeshSelect}
                 onClose={() => setActivePanel(null)}
@@ -365,6 +404,8 @@ function App() {
         >
           <Legend
             maxPopulation={statistics.maxPopulation}
+            isDifferenceMode={timezone === "difference"}
+            timezone={timezone}
             showCommercialFacilities={showCommercialFacilities}
             onClose={() => setShowLegend(false)}
           />
@@ -394,6 +435,11 @@ function App() {
             totalPopulation={statistics.totalPopulation}
             maxPopulation={statistics.maxPopulation}
             averagePopulation={statistics.averagePopulation}
+            isDifferenceMode={timezone === "difference"}
+            nighttimeIncreaseCount={statistics.nighttimeIncreaseCount}
+            daytimeIncreaseCount={statistics.daytimeIncreaseCount}
+            maxNighttimeIncrease={statistics.maxNighttimeIncrease}
+            maxDaytimeIncrease={statistics.maxDaytimeIncrease}
           />
         </div>
 

@@ -240,6 +240,52 @@ body,
   background: #800026;
 }
 
+.differenceNightStrong { background: #1e3a8a; }
+.differenceNightHigh { background: #2563eb; }
+.differenceNight { background: #60a5fa; }
+.differenceNightLow { background: #bfdbfe; }
+.differenceDayLow { background: #fecaca; }
+.differenceDay { background: #f87171; }
+.differenceDayHigh { background: #dc2626; }
+.differenceDayStrong { background: #991b1b; }
+
+.mapLegend .differenceLegend {
+  display: block;
+}
+
+.mapLegend .differenceLegendGroup {
+  display: block;
+  margin: 0 0 8px;
+}
+
+.mapLegend .differenceLegendGroup h3 {
+  margin: 0 0 5px;
+  font-size: 12px;
+}
+
+.mapLegend .differenceLegendGroup.night h3 { color: #1d4ed8; }
+.mapLegend .differenceLegendGroup.day h3 { color: #b91c1c; }
+
+.box.c1.dayScale { background: #fee2e2; }
+.box.c2.dayScale { background: #fecaca; }
+.box.c3.dayScale { background: #fca5a5; }
+.box.c4.dayScale { background: #f87171; }
+.box.c5.dayScale { background: #dc2626; }
+.box.c6.dayScale { background: #991b1b; }
+.box.c1.nightScale { background: #dbeafe; }
+.box.c2.nightScale { background: #bfdbfe; }
+.box.c3.nightScale { background: #93c5fd; }
+.box.c4.nightScale { background: #60a5fa; }
+.box.c5.nightScale { background: #2563eb; }
+.box.c6.nightScale { background: #1e3a8a; }
+
+.mapLegend .differenceLegendNote {
+  display: block;
+  margin: 2px 0 10px 32px;
+  color: #64748b;
+  font-weight: 700;
+}
+
 .message {
   padding: 12px;
   background: #fff7d6;
@@ -1012,6 +1058,48 @@ body,
   height: 24px;
   border-radius: 6px;
   font-size: 18px;
+}
+
+.rankingFilter {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin: 6px 0 4px;
+}
+
+.rankingFilter button {
+  min-height: 30px;
+  padding: 4px 5px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.rankingFilter button:hover,
+.rankingFilter button:focus-visible {
+  border-color: #64748b;
+  outline: none;
+}
+
+.rankingFilter button.active {
+  border-color: #475569;
+  background: #475569;
+  color: #fff;
+}
+
+.rankingFilter button.day.active {
+  border-color: #dc2626;
+  background: #dc2626;
+}
+
+.rankingFilter button.night.active {
+  border-color: #2563eb;
+  background: #2563eb;
 }
 
 .rankingPanelContainer .rankItem {

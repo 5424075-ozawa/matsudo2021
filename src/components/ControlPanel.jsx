@@ -55,6 +55,7 @@ function ControlPanel({
             <option value="0">終日</option>
             <option value="1">昼</option>
             <option value="2">夜</option>
+            <option value="difference">昼夜の需要差</option>
           </select>
         </label>
 

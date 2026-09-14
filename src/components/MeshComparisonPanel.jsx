@@ -455,14 +455,24 @@ function MeshComparisonPanel({
             }
 
             return selectedMeshIds.reduce((item, meshId, index) => {
-              const target = rows.find(
-                (row) =>
-                  row.mesh1kmid === meshId &&
-                  row.dayflag === dayflag &&
-                  row.timezone === timezone
-              );
-
-              item[`mesh${index}`] = target ? target.population : 0;
+              if (timezone === "difference") {
+                const daytimeTarget = rows.find(
+                  (row) => row.mesh1kmid === meshId && row.dayflag === dayflag && row.timezone === "1"
+                );
+                const nighttimeTarget = rows.find(
+                  (row) => row.mesh1kmid === meshId && row.dayflag === dayflag && row.timezone === "2"
+                );
+                item[`mesh${index}`] =
+                  (nighttimeTarget?.population ?? 0) - (daytimeTarget?.population ?? 0);
+              } else {
+                const target = rows.find(
+                  (row) =>
+                    row.mesh1kmid === meshId &&
+                    row.dayflag === dayflag &&
+                    row.timezone === timezone
+                );
+                item[`mesh${index}`] = target ? target.population : 0;
+              }
               return item;
             }, {
               month: month.label,
@@ -541,11 +551,12 @@ function MeshComparisonPanel({
   }, [monthlyData, isSingleMode, visibleComparisonMeshes]);
 
   const comparisonYAxis = useMemo(() => {
+    const values = monthlyData.flatMap((item) =>
+      comparisonMeshes.map((mesh) => item[mesh.key] ?? 0)
+    );
     const maxValue = Math.max(
       0,
-      ...monthlyData.flatMap((item) =>
-        comparisonMeshes.map((mesh) => item[mesh.key] ?? 0)
-      )
+      ...values.map((value) => timezone === "difference" ? Math.abs(value) : value)
     );
 
     if (maxValue === 0) {
@@ -567,17 +578,19 @@ function MeshComparisonPanel({
 
     const step = niceMultiplier * magnitude;
     const max = step * 4;
-    const ticks = Array.from({ length: 5 }, (_, index) => index * step);
+    const ticks = timezone === "difference"
+      ? Array.from({ length: 9 }, (_, index) => (index - 4) * step)
+      : Array.from({ length: 5 }, (_, index) => index * step);
 
-    return { max, ticks };
-  }, [monthlyData, comparisonMeshes]);
+    return { min: timezone === "difference" ? -max : 0, max, ticks };
+  }, [monthlyData, comparisonMeshes, timezone]);
 
   if (selectedMeshIds.length === 0) {
     return (
       <section className="comparisonPanel">
-        <h2>メッシュ比較</h2>
+        <h2>エリア比較</h2>
         <p>
-          地図上のメッシュをクリックすると、
+          地図上のエリアをクリックすると、
           1地点の昼夜・平日休日比較ができます。
           2つ選択すると、2地点の月別推移を比較できます。
         </p>
@@ -588,7 +601,7 @@ function MeshComparisonPanel({
   return (
     <section className="comparisonPanel">
       <div className="comparisonHeader">
-        <h2>メッシュ比較</h2>
+        <h2>エリア比較</h2>
 
         <div className="comparisonHeaderActions">
           <button
@@ -608,8 +621,8 @@ function MeshComparisonPanel({
             type="button"
             className="comparisonCloseButton"
             onClick={onClear}
-            aria-label="メッシュ選択を解除して閉じる"
-            title="メッシュ選択を解除して閉じる"
+            aria-label="エリア選択を解除して閉じる"
+            title="エリア選択を解除して閉じる"
           >
             <span aria-hidden="true">×</span>
           </button>
@@ -683,13 +696,13 @@ function MeshComparisonPanel({
       {isMultiMeshMode && (
         <p className="comparisonCondition">
           {selectedMeshIds.length}地点比較条件：
-          {dayflagLabels[dayflag]} / {timezoneLabels[timezone]}
+          {dayflagLabels[dayflag]} / {timezone === "difference" ? "昼夜の需要差" : timezoneLabels[timezone]}
         </p>
       )}
 
       {isSingleMode && selectedMeshIds.length === 1 && (
         <p className="comparisonNote">
-          他のメッシュをクリックすると、複数地点比較（最大5地点）に切り替わります。
+          他のエリアをクリックすると、複数地点比較（最大5地点）に切り替わります。
         </p>
       )}
 
@@ -720,7 +733,7 @@ function MeshComparisonPanel({
                   type="linear"
                   dataKey="daytime"
                   name="昼間"
-                  stroke="#2563eb"
+                  stroke="#dc2626"
                   strokeWidth={3}
                   dot={{ r: 4 }}
                   activeDot={{ r: 7 }}
@@ -730,7 +743,7 @@ function MeshComparisonPanel({
                   type="linear"
                   dataKey="nighttime"
                   name="夜間"
-                  stroke="#dc2626"
+                  stroke="#2563eb"
                   strokeWidth={3}
                   dot={{ r: 4 }}
                   activeDot={{ r: 7 }}
@@ -805,7 +818,7 @@ function MeshComparisonPanel({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis
-                  domain={[0, comparisonYAxis.max]}
+                  domain={[comparisonYAxis.min ?? 0, comparisonYAxis.max]}
                   ticks={comparisonYAxis.ticks}
                   allowDecimals={false}
                   tickFormatter={(value) => value.toLocaleString()}

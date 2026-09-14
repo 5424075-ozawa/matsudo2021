@@ -8,7 +8,7 @@ function Header({ minimized, onToggleMinimize }) {
         </h1>
 
         <p>
-          2021年の1kmメッシュ別滞在人口データを用いて、
+          2021年の1kmエリア別滞在人口データを用いて、
           営業区域別に人流を可視化します。
         </p>
       </div>
